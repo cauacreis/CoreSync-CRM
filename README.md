@@ -55,21 +55,44 @@ Quando uma requisição atinge a API:
 3. O `companyId` é extraído e injetado no **`TenantContext`** (que usa `ThreadLocal` para manter os dados seguros e isolados na Thread da requisição atual).
 4. Em qualquer lugar do sistema, a aplicação pode chamar `TenantContext.getTenantId()` e saber exatamente a qual empresa a requisição atual pertence, sem precisar passar variáveis gigantes pelas assinaturas de método.
 
-## 🧪 Como Testar a Autenticação (cURL)
+## 🛡️ Prova de Fogo: Isolamento Multi-Tenant
 
-**1. Login na Empresa Alpha**
+Para provar que o **TenantContext** é impenetrável, criamos o módulo de **Leads** (Funil de Vendas). Ao cadastrar um Lead, a API **nunca** pede o ID da Empresa; ela descobre sozinha através do Token JWT (Passaporte) e salva o Lead atrelado exclusivamente àquele inquilino. Na listagem, apenas Leads da própria empresa são retornados.
+
+### Passo a Passo (Prova de Isolamento via cURL):
+
+**1. Logar na Empresa Alpha e Guardar o Token:**
 ```bash
+# Pegue o token gerado por este comando:
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@alpha.com", "password":"123"}'
 ```
 
-**2. Login na Empresa Beta**
+**2. Criar um Lead para a Empresa Alpha:**
 ```bash
+# Substitua MEU_TOKEN_ALPHA pelo token recebido no passo 1
+curl -X POST http://localhost:8080/api/leads \
+  -H "Authorization: Bearer MEU_TOKEN_ALPHA" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Cliente Gigante Alpha", "email":"contato@gigante.com", "phone":"9999-8888", "status":"NEW"}'
+```
+
+**3. Logar na Empresa Beta:**
+```bash
+# Pegue o token da Empresa Beta:
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@beta.com", "password":"123"}'
 ```
+
+**4. Listar os Leads (Logado como Empresa Beta):**
+```bash
+# Substitua MEU_TOKEN_BETA pelo token recebido no passo 3
+curl -X GET http://localhost:8080/api/leads \
+  -H "Authorization: Bearer MEU_TOKEN_BETA"
+```
+*O resultado será `[]` (Vazio). A Empresa Beta não faz ideia de que o Lead da Empresa Alpha existe. O isolamento lógico foi um sucesso absoluto!*
 
 ---
 *Gerado e mantido pela equipe de arquitetura.*
