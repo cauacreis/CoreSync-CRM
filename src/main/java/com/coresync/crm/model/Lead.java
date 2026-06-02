@@ -30,6 +30,9 @@ public class Lead {
     @Column(nullable = false)
     private LeadStatus status;
 
+    @Column(precision = 19, scale = 2)
+    private java.math.BigDecimal estimatedValue;
+
     @Column(nullable = false, name = "company_id")
     private UUID companyId;
 }

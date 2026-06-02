@@ -19,4 +19,7 @@ public class LeadRequest {
 
     @NotNull
     private LeadStatus status;
+
+    @NotNull(message = "O valor estimado não pode ser nulo")
+    private java.math.BigDecimal estimatedValue;
 }

@@ -106,5 +106,19 @@ curl -X GET http://localhost:8080/api/audit \
 ```
 *Isto irá listar os eventos de auditoria com data, ação (LEAD_CREATED) e autor.*
 
+## 🧠 Cérebro Analítico (Business Intelligence)
+O **DashboardService** é o motor de BI do nosso SaaS, responsável por transformar leads em dados financeiros isolados por inquilino.
+As métricas calculadas em tempo real incluem:
+- **Total Pipeline Value**: A soma de todos os negócios em aberto ou ganhos.
+- **Total Revenue Won**: Receita garantida (apenas negócios ganhos).
+- **Conversion Rate**: A taxa de sucesso global da empresa.
+
+**Para consultar o Relatório Executivo (Logado como Empresa Alpha):**
+```bash
+curl -X GET http://localhost:8080/api/dashboard \
+  -H "Authorization: Bearer MEU_TOKEN_ALPHA"
+```
+*Garantia técnica: Operações matemáticas como `Total Leads = 0` são blindadas contra `ArithmeticException` (divisão por zero).*
+
 ---
 *Gerado e mantido pela equipe de arquitetura.*

@@ -25,6 +25,7 @@ public class LeadController {
                 .email(request.getEmail())
                 .phone(request.getPhone())
                 .status(request.getStatus())
+                .estimatedValue(request.getEstimatedValue())
                 .build();
         
         Lead createdLead = leadService.createLead(lead);
