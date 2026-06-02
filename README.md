@@ -55,86 +55,45 @@ Quando uma requisição atinge a API:
 3. O `companyId` é extraído e injetado no **`TenantContext`** (que usa `ThreadLocal` para manter os dados seguros e isolados na Thread da requisição atual).
 4. Em qualquer lugar do sistema, a aplicação pode chamar `TenantContext.getTenantId()` e saber exatamente a qual empresa a requisição atual pertence, sem precisar passar variáveis gigantes pelas assinaturas de método.
 
-## 🛡️ Prova de Fogo: Isolamento Multi-Tenant
+# 🚀 CoreSync CRM - Enterprise B2B SaaS (v1.0.0-MVP)
 
-Para provar que o **TenantContext** é impenetrável, criamos o módulo de **Leads** (Funil de Vendas). Ao cadastrar um Lead, a API **nunca** pede o ID da Empresa; ela descobre sozinha através do Token JWT (Passaporte) e salva o Lead atrelado exclusivamente àquele inquilino. Na listagem, apenas Leads da própria empresa são retornados.
+Bem-vindo ao CoreSync CRM, uma plataforma SaaS de alta performance projetada desde o dia 1 para atender clientes corporativos (B2B) com o máximo rigor de segurança arquitetural e excelência de interface.
 
-### Passo a Passo (Prova de Isolamento via cURL):
+## 🏗️ A Tríade Arquitetural
 
-**1. Logar na Empresa Alpha e Guardar o Token:**
-```bash
-# Pegue o token gerado por este comando:
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@alpha.com", "password":"123"}'
-```
+Este MVP foi construído sob três pilares de engenharia inegociáveis:
 
-**2. Criar um Lead para a Empresa Alpha:**
-```bash
-# Substitua MEU_TOKEN_ALPHA pelo token recebido no passo 1
-curl -X POST http://localhost:8080/api/leads \
-  -H "Authorization: Bearer MEU_TOKEN_ALPHA" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Cliente Gigante Alpha", "email":"contato@gigante.com", "phone":"9999-8888", "status":"NEW"}'
-```
+### 1. Isolamento Multi-Tenant Robusto (Spring Security + JWT)
+- **Particionamento Lógico**: Ao invés de bancos de dados separados e caros, utilizamos a técnica de injeção de `companyId` (UUID). O filtro `JwtAuthenticationFilter` intercepta o passaporte (Token JWT) do usuário na portaria da requisição e deposita a chave da sua empresa em memória segura usando `ThreadLocal` no nosso **`TenantContext`**.
+- **Blindagem Oculta**: Todos os serviços (ex: `LeadService`) não exigem que o usuário envie qual é a sua empresa. O serviço busca ativamente na memória. Isso inviabiliza completamente fraudes de ID via API (Spoofing).
 
-**3. Logar na Empresa Beta:**
-```bash
-# Pegue o token da Empresa Beta:
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@beta.com", "password":"123"}'
-```
+### 2. Rastreabilidade com Spring AOP (O Cofre de Auditoria)
+- **Engenharia Limpa (Clean Code)**: Sem poluir as classes de negócios com código de logs! Utilizamos **Programação Orientada a Aspectos (AOP)**.
+- **O Olho Que Tudo Vê**: Qualquer método de negócio crítico anotado com `@Auditable` é interceptado no seu encerramento. O Aspecto captura dinamicamente (via Reflection) qual entidade sofreu mutação, puxa o e-mail do autor direto da memória da requisição, e arquiva no banco de dados. Transparência executiva total para os inquilinos B2B.
 
-**4. Listar os Leads (Logado como Empresa Beta):**
-```bash
-# Substitua MEU_TOKEN_BETA pelo token recebido no passo 3
-curl -X GET http://localhost:8080/api/leads \
-  -H "Authorization: Bearer MEU_TOKEN_BETA"
-```
-*O resultado será `[]` (Vazio). A Empresa Beta não faz ideia de que o Lead da Empresa Alpha existe. O isolamento lógico foi um sucesso absoluto!*
-
-## 👁️ O Cofre de Auditoria (Spring AOP)
-Para não poluir os serviços de negócio (LeadService) com códigos chatos de salvar logs a cada ação de usuário, nós utilizamos **Spring AOP (Programação Orientada a Aspectos)**.
-
-A anotação `@Auditable(action="LEAD_CREATED")` é colocada sobre o método e nosso **AuditAspect** intercepta a saída do método invisivelmente. O Aspecto extrai as informações do objeto salvo, puxa quem foi o autor (`userEmail`) e qual era o inquilino (`companyId`) via **TenantContext**, e guarda tudo na tabela de `audit_logs` blindando a rastreabilidade.
-
-**Para ver os logs gerados (Logado como Empresa Alpha):**
-```bash
-curl -X GET http://localhost:8080/api/audit \
-  -H "Authorization: Bearer MEU_TOKEN_ALPHA"
-```
-*Isto irá listar os eventos de auditoria com data, ação (LEAD_CREATED) e autor.*
-
-## 🧠 Cérebro Analítico (Business Intelligence)
-O **DashboardService** é o motor de BI do nosso SaaS, responsável por transformar leads em dados financeiros isolados por inquilino.
-As métricas calculadas em tempo real incluem:
-- **Total Pipeline Value**: A soma de todos os negócios em aberto ou ganhos.
-- **Total Revenue Won**: Receita garantida (apenas negócios ganhos).
-- **Conversion Rate**: A taxa de sucesso global da empresa.
-
-**Para consultar o Relatório Executivo (Logado como Empresa Alpha):**
-```bash
-curl -X GET http://localhost:8080/api/dashboard \
-  -H "Authorization: Bearer MEU_TOKEN_ALPHA"
-```
-*Garantia técnica: Operações matemáticas como `Total Leads = 0` são blindadas contra `ArithmeticException` (divisão por zero).*
-
-## 🎨 O Portal Web (React + Vite)
-Uma interface visual de altíssima performance, criada sob a estética **Neo-Brutalista**, foi acoplada ao projeto para o gerenciamento executivo do Funil de Vendas.
-
-Para rodar o chassi do portal:
-1. Abra um novo terminal.
-2. Acesse a pasta do front-end: `cd coresync-web`.
-3. Caso não tenha feito, rode `npm install`.
-4. Inicie o portal: `npm run dev`.
-
-A portaria será aberta em **`http://localhost:5173/login`**. Use as credenciais cadastradas na base (`admin@alpha.com` e senha `123`) para visualizar a Taxa de Conversão e a Receita do seu Tenant!
-
-### 📊 Quadro Kanban
-Navegue para `/pipeline` para ver os seus Leads organizados visualmente.
-- O backend garante segurança: Atualizar o status (`PATCH /api/leads/{id}/status`) é blindado, você não consegue arrastar um card que pertença à outra empresa.
-- Ao atualizar o status de um card, o Spring Boot gravará um Log de Auditoria em background usando Aspectos (AOP).
+### 3. Front-end de Impacto (React + Vite + Neo-Brutalismo)
+- **Performance Extrema**: O chassi do portal (`/coresync-web`) usa **Vite** como empacotador e tipagem rigorosa do TypeScript para entregar as telas do funil em milissegundos.
+- **Estética Neo-Brutalista**: Abusamos da classe TailwindCSS. Com *Dark Mode* ativado no código genético do CSS raiz, desenhamos telas densas, fontes grossas, botões Lima agressivos com sombras duras (`shadow-[6px_6px_...]`), traduzindo segurança e agressividade comercial no Kanban do Pipeline de Vendas.
 
 ---
-*Gerado e mantido pela equipe de arquitetura.*
+
+## 💻 Guias Práticos
+
+### Levantando o Motor de API (Java / Spring Boot)
+Pré-requisitos: JDK 17 e Maven. O H2 roda local em memória, zero setup.
+```bash
+mvn spring-boot:run
+```
+O Backend subirá na porta **8080** com usuários padrão gerados (ex: `admin@alpha.com` | senha: `123`).
+
+### Levantando o Motor Visual (Node / React)
+Pré-requisitos: Node 18+.
+```bash
+cd coresync-web
+npm install
+npm run dev
+```
+A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a conversão real das vendas do Tenant isolado.
+
+---
+*Produto arquitetado e codificado sob excelência em 2026. Stand-by ativado.*
