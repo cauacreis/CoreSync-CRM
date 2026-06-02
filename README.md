@@ -131,5 +131,10 @@ Para rodar o chassi do portal:
 
 A portaria será aberta em **`http://localhost:5173/login`**. Use as credenciais cadastradas na base (`admin@alpha.com` e senha `123`) para visualizar a Taxa de Conversão e a Receita do seu Tenant!
 
+### 📊 Quadro Kanban
+Navegue para `/pipeline` para ver os seus Leads organizados visualmente.
+- O backend garante segurança: Atualizar o status (`PATCH /api/leads/{id}/status`) é blindado, você não consegue arrastar um card que pertença à outra empresa.
+- Ao atualizar o status de um card, o Spring Boot gravará um Log de Auditoria em background usando Aspectos (AOP).
+
 ---
 *Gerado e mantido pela equipe de arquitetura.*

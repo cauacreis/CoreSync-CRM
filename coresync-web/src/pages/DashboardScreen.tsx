@@ -48,12 +48,20 @@ export function DashboardScreen() {
     <div className="flex h-full w-full flex-col p-8 overflow-y-auto">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-5xl font-black uppercase tracking-tighter">Painel Executivo</h1>
-        <button
-          onClick={handleLogout}
-          className="border-4 border-zinc-100 bg-zinc-100 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
-        >
-          Sair
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => navigate('/pipeline')}
+            className="border-4 border-zinc-100 bg-lime-400 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-lime-300 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+          >
+            Quadro Kanban
+          </button>
+          <button
+            onClick={handleLogout}
+            className="border-4 border-zinc-100 bg-zinc-100 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+          >
+            Sair
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">

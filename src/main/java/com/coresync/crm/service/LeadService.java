@@ -34,4 +34,18 @@ public class LeadService {
         
         return leadRepository.findAllByCompanyId(companyId);
     }
+
+    @com.coresync.crm.aop.Auditable(action = "LEAD_STATUS_UPDATED")
+    public Lead updateLeadStatus(UUID leadId, LeadStatus newStatus) {
+        UUID companyId = TenantContext.getTenantId();
+        if (companyId == null) {
+            throw new IllegalStateException("Acesso negado: TenantContext não possui companyId");
+        }
+
+        Lead lead = leadRepository.findByIdAndCompanyId(leadId, companyId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead não encontrado ou não pertence a esta empresa"));
+
+        lead.setStatus(newStatus);
+        return leadRepository.save(lead);
+    }
 }
