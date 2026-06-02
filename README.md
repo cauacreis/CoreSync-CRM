@@ -120,5 +120,16 @@ curl -X GET http://localhost:8080/api/dashboard \
 ```
 *Garantia técnica: Operações matemáticas como `Total Leads = 0` são blindadas contra `ArithmeticException` (divisão por zero).*
 
+## 🎨 O Portal Web (React + Vite)
+Uma interface visual de altíssima performance, criada sob a estética **Neo-Brutalista**, foi acoplada ao projeto para o gerenciamento executivo do Funil de Vendas.
+
+Para rodar o chassi do portal:
+1. Abra um novo terminal.
+2. Acesse a pasta do front-end: `cd coresync-web`.
+3. Caso não tenha feito, rode `npm install`.
+4. Inicie o portal: `npm run dev`.
+
+A portaria será aberta em **`http://localhost:5173/login`**. Use as credenciais cadastradas na base (`admin@alpha.com` e senha `123`) para visualizar a Taxa de Conversão e a Receita do seu Tenant!
+
 ---
 *Gerado e mantido pela equipe de arquitetura.*
