@@ -41,6 +41,35 @@ O Spring Security já está configurado para não bloquear o path do `/h2-consol
 - [x] **Fase 2**: A Modelagem Multi-Tenant (Company, User, Role)
 - [x] **Fase 3**: O Cérebro da Segurança Base (Spring Security, Repositories, Data Initializer)
 - [x] **Fase 4**: A Bíblia do CRM (Este README)
+- [x] **Fase 5**: O Motor JWT (Geração de Passaportes)
+- [x] **Fase 6**: O Filtro e o Tenant Context (ThreadLocal)
+- [x] **Fase 7**: A Rota de Login (`/api/auth/login`)
+- [x] **Fase 8**: Atualização da Documentação
+
+## 🔒 Motor de Autenticação JWT e TenantContext
+Este SaaS B2B utiliza **JWT (JSON Web Tokens)** não apenas para login, mas como o verdadeiro *Passaporte do Inquilino*. Todo token emitido para um usuário possui o `companyId` embutido como um claim extra. 
+
+Quando uma requisição atinge a API:
+1. O `JwtAuthenticationFilter` intercepta o Header `Authorization`.
+2. O JWT é decodificado e validado.
+3. O `companyId` é extraído e injetado no **`TenantContext`** (que usa `ThreadLocal` para manter os dados seguros e isolados na Thread da requisição atual).
+4. Em qualquer lugar do sistema, a aplicação pode chamar `TenantContext.getTenantId()` e saber exatamente a qual empresa a requisição atual pertence, sem precisar passar variáveis gigantes pelas assinaturas de método.
+
+## 🧪 Como Testar a Autenticação (cURL)
+
+**1. Login na Empresa Alpha**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@alpha.com", "password":"123"}'
+```
+
+**2. Login na Empresa Beta**
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@beta.com", "password":"123"}'
+```
 
 ---
 *Gerado e mantido pela equipe de arquitetura.*
