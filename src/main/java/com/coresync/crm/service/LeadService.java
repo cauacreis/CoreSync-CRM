@@ -15,6 +15,7 @@ public class LeadService {
 
     private final LeadRepository leadRepository;
 
+    @com.coresync.crm.aop.Auditable(action = "LEAD_CREATED")
     public Lead createLead(Lead lead) {
         UUID companyId = TenantContext.getTenantId();
         if (companyId == null) {

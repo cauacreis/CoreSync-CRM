@@ -94,5 +94,17 @@ curl -X GET http://localhost:8080/api/leads \
 ```
 *O resultado será `[]` (Vazio). A Empresa Beta não faz ideia de que o Lead da Empresa Alpha existe. O isolamento lógico foi um sucesso absoluto!*
 
+## 👁️ O Cofre de Auditoria (Spring AOP)
+Para não poluir os serviços de negócio (LeadService) com códigos chatos de salvar logs a cada ação de usuário, nós utilizamos **Spring AOP (Programação Orientada a Aspectos)**.
+
+A anotação `@Auditable(action="LEAD_CREATED")` é colocada sobre o método e nosso **AuditAspect** intercepta a saída do método invisivelmente. O Aspecto extrai as informações do objeto salvo, puxa quem foi o autor (`userEmail`) e qual era o inquilino (`companyId`) via **TenantContext**, e guarda tudo na tabela de `audit_logs` blindando a rastreabilidade.
+
+**Para ver os logs gerados (Logado como Empresa Alpha):**
+```bash
+curl -X GET http://localhost:8080/api/audit \
+  -H "Authorization: Bearer MEU_TOKEN_ALPHA"
+```
+*Isto irá listar os eventos de auditoria com data, ação (LEAD_CREATED) e autor.*
+
 ---
 *Gerado e mantido pela equipe de arquitetura.*

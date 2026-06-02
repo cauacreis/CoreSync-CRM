@@ -52,6 +52,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if (companyId != null) {
                         TenantContext.setTenantId(companyId);
                     }
+                    if (userEmail != null) {
+                        TenantContext.setUserEmail(userEmail);
+                    }
 
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userEmail,
