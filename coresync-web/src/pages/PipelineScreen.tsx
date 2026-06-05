@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { NewLeadModal } from '../components/NewLeadModal';
 
 interface Lead {
   id: string;
@@ -16,6 +17,7 @@ const STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'LOST'];
 export function PipelineScreen() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [alertMsg, setAlertMsg] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,6 +79,12 @@ export function PipelineScreen() {
         <h1 className="text-5xl font-black uppercase tracking-tighter text-zinc-100">Pipeline de Vendas</h1>
         <div className="flex gap-4">
           <button
+            onClick={() => setIsModalOpen(true)}
+            className="border-4 border-lime-400 bg-lime-400 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-lime-300 shadow-[4px_4px_0px_0px_rgba(163,230,53,1)]"
+          >
+            + NOVO LEAD
+          </button>
+          <button
             onClick={() => navigate('/dashboard')}
             className="border-4 border-zinc-100 bg-zinc-900 px-6 py-2 font-bold text-zinc-100 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-800 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
           >
@@ -135,6 +143,12 @@ export function PipelineScreen() {
           </div>
         ))}
       </div>
+
+      <NewLeadModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchLeads}
+      />
     </div>
   );
 }

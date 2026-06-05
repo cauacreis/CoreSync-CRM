@@ -1,6 +1,7 @@
 package com.coresync.crm.service;
 
 import com.coresync.crm.model.Lead;
+import com.coresync.crm.model.LeadStatus;
 import com.coresync.crm.repository.LeadRepository;
 import com.coresync.crm.security.TenantContext;
 import lombok.RequiredArgsConstructor;
