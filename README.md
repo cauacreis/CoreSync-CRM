@@ -100,12 +100,29 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 O sistema foi evoluído para suportar agentes conversacionais! 
 Agora os vendedores podem consultar e atualizar o Pipeline diretamente pelo **Telegram**, utilizando processamento de linguagem natural (NLP) alimentado pela LLM **Llama3-8B** da **Groq**.
 
-### Como testar o Bot de Vendas:
-1. Adicione as variáveis de ambiente `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME` e `GROQ_API_KEY` ao seu ambiente.
-2. Inicie uma conversa com o seu Bot no Telegram.
-3. Faça o Account Linking com suas credenciais: `/login admin@alpha.com 123`. A sessão será amarrada à sua Empresa, mantendo o isolamento Multi-Tenant seguro.
-4. Mande mensagens informais, como: *"Quero atualizar o status de um lead"*.
-5. A Groq classificará a intenção, e a Máquina de Estados do Bot listará os Leads. Você informa o número do lead e o novo Status (`WON`, `LOST`, etc) e a Mágica acontece nos bastidores!
+### Como configurar e testar o Bot B2B:
+
+Para garantir a máxima segurança, as chaves da IA e do Bot não estão no código. Você deve injetá-las no seu terminal **antes** de ligar o Spring Boot.
+
+**1. Abra o seu PowerShell na pasta raiz do projeto e declare suas chaves:**
+```powershell
+$env:TELEGRAM_BOT_TOKEN="SEU_TOKEN_DO_BOTFATHER"
+$env:TELEGRAM_BOT_USERNAME="SEU_USERNAME_DO_BOT"
+$env:GROQ_API_KEY="SUA_CHAVE_DA_GROQ"
+```
+
+**2. No mesmo terminal, dê a ignição no Maven para subir o Backend:**
+```powershell
+mvn spring-boot:run
+```
+
+**3. Inicie a conversa no Telegram e faça o Account Linking:**
+Abra o chat com seu bot e digite o comando abaixo para se autenticar como o administrador da Empresa Alpha:
+`/login admin@alpha.com 123`
+
+**4. Interaja naturalmente!**
+Mande uma mensagem como *"Quero atualizar o status de um lead"*. 
+A LLM (Groq) classificará a intenção, a Máquina de Estados do Bot listará os Leads da sua empresa, e você poderá movê-los livremente pelo pipeline do CRM usando apenas texto!
 
 ---
 *Produto arquitetado e codificado sob excelência em 2026. Stand-by ativado.*
