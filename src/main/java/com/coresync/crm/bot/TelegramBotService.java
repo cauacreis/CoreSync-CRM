@@ -193,6 +193,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
             Lead newLead = Lead.builder()
                     .name(name)
+                    .email("sem-email@telegram.bot")
                     .phone(phone)
                     .estimatedValue(value)
                     .status(LeadStatus.NEW)
