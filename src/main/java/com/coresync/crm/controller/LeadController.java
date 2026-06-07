@@ -59,12 +59,12 @@ public class LeadController {
         if (message == null || message.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        Lead updatedLead = leadService.addInteractionToLead(id, message);
+        Lead updatedLead = leadService.appendInteraction(id, message);
         return ResponseEntity.ok(updatedLead);
     }
 
     @GetMapping("/{id}/review")
-    public ResponseEntity<com.coresync.crm.ai.review.SalesReviewResponse> reviewLeadConversation(
+    public ResponseEntity<?> reviewLeadConversation(
             @PathVariable UUID id) {
 
         Lead lead = leadService.getLeads().stream()
@@ -74,6 +74,10 @@ public class LeadController {
 
         if (lead == null) {
             return ResponseEntity.notFound().build();
+        }
+
+        if (lead.getChatHistory() == null || lead.getChatHistory().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Nenhuma conversa registrada para este lead ainda.");
         }
 
         com.coresync.crm.ai.review.SalesReviewResponse review = groqClientService.reviewConversation(lead.getChatHistory());

@@ -311,53 +311,75 @@ public class TelegramBotService extends TelegramLongPollingBot {
         TelegramSession session = sessionRepository.findById(chatId).orElse(null);
         if (session == null || session.getCompanyId() == null) return;
 
-        try {
-            TenantContext.setTenantId(session.getCompanyId());
-            UUID leadId = UUID.fromString(leadIdStr);
-            Lead lead = leadRepository.findByIdAndCompanyId(leadId, session.getCompanyId()).orElse(null);
-
-            if (lead == null) {
-                sendMessage(chatId, "⚠️ Lead não encontrado.");
-                return;
-            }
-
-            sendMessage(chatId, "⏳ A IA Groq está analisando o histórico do lead " + lead.getName() + "...\nIsso pode levar alguns segundos.");
-
-            com.coresync.crm.ai.review.SalesReviewResponse review = groqClientService.reviewConversation(lead.getChatHistory());
-
-            String msg = String.format(
-                    "🤖 *AI Sales Coach - Análise de Desempenho*\n\n" +
-                    "⭐ *Nota:* %d/10\n\n" +
-                    "❌ *Erros Detectados:*\n%s\n\n" +
-                    "💡 *Sugestões de Melhoria:*\n%s\n\n" +
-                    "🛡️ *Tratamento de Objeções:*\n%s",
-                    review.score(),
-                    String.join("\n- ", review.detectedErrors().isEmpty() ? List.of("Nenhum") : review.detectedErrors()),
-                    String.join("\n- ", review.improvementSuggestions().isEmpty() ? List.of("Nenhum") : review.improvementSuggestions()),
-                    review.objectionHandlingPerformance()
-            );
-
-            sendMessage(chatId, msg);
-            
-            // Gerar o PDF de Dashboard contextualizado
-            try {
-                DashboardMetricsResponse metrics = dashboardService.getMetrics();
-                List<AuditLog> auditLogs = auditLogRepository.findAllByCompanyIdOrderByTimestampDesc(session.getCompanyId());
-                byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs, review.objectionHandlingPerformance());
-                SendDocument sendDocument = new SendDocument();
-                sendDocument.setChatId(chatId.toString());
-                sendDocument.setDocument(new InputFile(new ByteArrayInputStream(pdfBytes), "Dashboard_AI_Insights_" + lead.getName().replace(" ", "_") + ".pdf"));
-                sendDocument.setCaption("📄 Anexado: Dashboard Executivo enriquecido com os Insights do AI Coach para este lead.");
-                execute(sendDocument);
-            } catch (Exception e) {
-                log.error("Erro ao gerar PDF do Dashboard com AI Insights", e);
-            }
-        } catch (Exception e) {
-            log.error("Erro ao analisar lead no Telegram", e);
-            sendMessage(chatId, "⚠️ Ocorreu um erro ao chamar a IA.");
-        } finally {
-            TenantContext.clear();
+        if (session.getConversationState() == ChatState.ANALYZING_LEAD) {
+            sendMessage(chatId, "⏳ Já estou analisando um lead para você. Aguarde um instante.");
+            return;
         }
+
+        session.setConversationState(ChatState.ANALYZING_LEAD);
+        sessionRepository.save(session);
+
+        UUID companyId = session.getCompanyId();
+        
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                TenantContext.setTenantId(companyId);
+                UUID leadId = UUID.fromString(leadIdStr);
+                Lead lead = leadRepository.findByIdAndCompanyId(leadId, companyId).orElse(null);
+
+                if (lead == null) {
+                    sendMessage(chatId, "⚠️ Lead não encontrado.");
+                    return;
+                }
+                
+                if (lead.getChatHistory() == null || lead.getChatHistory().trim().isEmpty()) {
+                    sendMessage(chatId, "⚠️ Nenhuma conversa registrada para este lead ainda. Impossível gerar análise.");
+                    return;
+                }
+
+                sendMessage(chatId, "⏳ A IA Groq está analisando o histórico do lead " + lead.getName() + "...\nIsso pode levar alguns segundos.");
+
+                com.coresync.crm.ai.review.SalesReviewResponse review = groqClientService.reviewConversation(lead.getChatHistory());
+
+                String msg = String.format(
+                        "🤖 *AI Sales Coach - Análise de Desempenho*\n\n" +
+                        "⭐ *Nota:* %d/10\n\n" +
+                        "❌ *Erros Detectados:*\n%s\n\n" +
+                        "💡 *Sugestões de Melhoria:*\n%s\n\n" +
+                        "🛡️ *Tratamento de Objeções:*\n%s",
+                        review.score(),
+                        String.join("\n- ", review.detectedErrors().isEmpty() ? List.of("Nenhum") : review.detectedErrors()),
+                        String.join("\n- ", review.improvementSuggestions().isEmpty() ? List.of("Nenhum") : review.improvementSuggestions()),
+                        review.objectionHandlingPerformance()
+                );
+
+                sendMessage(chatId, msg);
+                
+                // Gerar o PDF de Dashboard contextualizado
+                try {
+                    DashboardMetricsResponse metrics = dashboardService.getMetrics();
+                    List<AuditLog> auditLogs = auditLogRepository.findAllByCompanyIdOrderByTimestampDesc(companyId);
+                    byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs, review.objectionHandlingPerformance());
+                    SendDocument sendDocument = new SendDocument();
+                    sendDocument.setChatId(chatId.toString());
+                    sendDocument.setDocument(new InputFile(new ByteArrayInputStream(pdfBytes), "Dashboard_AI_Insights_" + lead.getName().replace(" ", "_") + ".pdf"));
+                    sendDocument.setCaption("📄 Anexado: Dashboard Executivo enriquecido com os Insights do AI Coach para este lead.");
+                    execute(sendDocument);
+                } catch (Exception e) {
+                    log.error("Erro ao gerar PDF do Dashboard com AI Insights", e);
+                }
+            } catch (Exception e) {
+                log.error("Erro ao analisar lead no Telegram", e);
+                sendMessage(chatId, "⚠️ Ocorreu um erro ao chamar a IA.");
+            } finally {
+                TenantContext.clear();
+                TelegramSession currentSession = sessionRepository.findById(chatId).orElse(null);
+                if (currentSession != null) {
+                    currentSession.setConversationState(ChatState.IDLE);
+                    sessionRepository.save(currentSession);
+                }
+            }
+        });
     }
 
     private void doAskForNewLead(TelegramSession session) {

@@ -61,7 +61,11 @@ public class LeadService {
     }
 
     @com.coresync.crm.aop.Auditable(action = "LEAD_INTERACTION_ADDED")
-    public Lead addInteractionToLead(UUID leadId, String message) {
+    public Lead appendInteraction(UUID leadId, String message) {
+        if (message == null || message.trim().isEmpty()) {
+            throw new IllegalArgumentException("A mensagem da interação não pode ser vazia.");
+        }
+        
         UUID companyId = TenantContext.getTenantId();
         if (companyId == null) {
             throw new IllegalStateException("Acesso negado: TenantContext não possui companyId");

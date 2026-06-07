@@ -59,6 +59,12 @@ public class GroqClientService {
         return "{\"intent\": \"UNKNOWN\"}";
     }
 
+    public String cleanChatHistoryForAi(String rawHistory) {
+        if (rawHistory == null) return "";
+        // Limpa caracteres especiais, mantendo letras, números, acentos e pontuação básica
+        return rawHistory.replaceAll("[^\\p{IsAlphabetic}\\p{IsDigit}\\p{Punct}\\s]", " ").trim();
+    }
+
     public com.coresync.crm.ai.review.SalesReviewResponse reviewConversation(String chatHistory) {
         if (chatHistory == null || chatHistory.trim().isEmpty()) {
             return new com.coresync.crm.ai.review.SalesReviewResponse(
@@ -69,6 +75,8 @@ public class GroqClientService {
             );
         }
 
+        String cleanedHistory = cleanChatHistoryForAi(chatHistory);
+
         String systemPrompt = "Você é um Diretor de Vendas B2B e especialista em psicologia de consumo. " +
                 "Analise a seguinte conversa entre o vendedor e o lead. Identifique erros de abordagem, pontos fracos de negociação, " +
                 "onde a conversa esfriou e dê notas e dicas práticas de melhoria. Responda ESTRITAMENTE em JSON com a seguinte estrutura: " +
@@ -77,7 +85,7 @@ public class GroqClientService {
         GroqRequest request = new GroqRequest(
                 List.of(
                         new Message("system", systemPrompt),
-                        new Message("user", chatHistory)
+                        new Message("user", cleanedHistory)
                 ),
                 this.model,
                 0.2,
