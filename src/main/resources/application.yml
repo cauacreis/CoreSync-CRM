@@ -13,12 +13,14 @@ spring:
 
 telegram:
   bot:
-    token: ${TELEGRAM_BOT_TOKEN:your_default_telegram_token}
-    username: ${TELEGRAM_BOT_USERNAME:CoreSyncCRM_Bot}
+    token: ${TELEGRAM_BOT_TOKEN}
+    username: ${TELEGRAM_BOT_USERNAME}
 
 groq:
   api:
-    key: ${GROQ_API_KEY:your_default_groq_api_key}
+    key: ${GROQ_API_KEY}
+    url: "https://api.groq.com/openai/v1/chat/completions"
+    model: "llama3-8b-8192"
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:

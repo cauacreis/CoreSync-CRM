@@ -11,13 +11,18 @@ import java.util.Map;
 public class GroqClientService {
 
     private final WebClient webClient;
+    private final String model;
 
-    public GroqClientService(@Value("${groq.api.key}") String groqApiKey) {
+    public GroqClientService(
+            @Value("${groq.api.key}") String groqApiKey,
+            @Value("${groq.api.url}") String groqApiUrl,
+            @Value("${groq.api.model}") String groqApiModel) {
         this.webClient = WebClient.builder()
-                .baseUrl("https://api.groq.com/openai/v1/chat/completions")
+                .baseUrl(groqApiUrl)
                 .defaultHeader("Authorization", "Bearer " + groqApiKey)
                 .defaultHeader("Content-Type", "application/json")
                 .build();
+        this.model = groqApiModel;
     }
 
     public record Message(String role, String content) {}
@@ -36,7 +41,7 @@ public class GroqClientService {
                         new Message("system", systemPrompt),
                         new Message("user", userInput)
                 ),
-                "llama3-8b-8192",
+                this.model,
                 0.1,
                 Map.of("type", "json_object")
         );
