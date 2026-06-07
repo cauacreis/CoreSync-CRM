@@ -293,7 +293,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             
             try {
                 List<AuditLog> auditLogs = auditLogRepository.findAllByCompanyIdOrderByTimestampDesc(session.getCompanyId());
-                byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs);
+                byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs, null);
                 SendDocument sendDocument = new SendDocument();
                 sendDocument.setChatId(session.getChatId().toString());
                 sendDocument.setDocument(new InputFile(new ByteArrayInputStream(pdfBytes), "DashboardReport.pdf"));
@@ -338,6 +338,20 @@ public class TelegramBotService extends TelegramLongPollingBot {
             );
 
             sendMessage(chatId, msg);
+            
+            // Gerar o PDF de Dashboard contextualizado
+            try {
+                DashboardMetricsResponse metrics = dashboardService.getMetrics();
+                List<AuditLog> auditLogs = auditLogRepository.findAllByCompanyIdOrderByTimestampDesc(session.getCompanyId());
+                byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs, review.objectionHandlingPerformance());
+                SendDocument sendDocument = new SendDocument();
+                sendDocument.setChatId(chatId.toString());
+                sendDocument.setDocument(new InputFile(new ByteArrayInputStream(pdfBytes), "Dashboard_AI_Insights_" + lead.getName().replace(" ", "_") + ".pdf"));
+                sendDocument.setCaption("📄 Anexado: Dashboard Executivo enriquecido com os Insights do AI Coach para este lead.");
+                execute(sendDocument);
+            } catch (Exception e) {
+                log.error("Erro ao gerar PDF do Dashboard com AI Insights", e);
+            }
         } catch (Exception e) {
             log.error("Erro ao analisar lead no Telegram", e);
             sendMessage(chatId, "⚠️ Ocorreu um erro ao chamar a IA.");

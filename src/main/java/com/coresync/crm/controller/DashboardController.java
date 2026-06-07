@@ -42,7 +42,7 @@ public class DashboardController {
         DashboardMetricsResponse metrics = dashboardService.getMetrics();
         List<AuditLog> auditLogs = auditLogRepository.findAllByCompanyIdOrderByTimestampDesc(companyId);
 
-        byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs);
+        byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs, null);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);

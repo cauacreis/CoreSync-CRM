@@ -14,6 +14,7 @@ import com.itextpdf.kernel.events.IEventHandler;
 import com.itextpdf.kernel.events.Event;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.layout.borders.DashedBorder;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Table;
@@ -112,7 +113,7 @@ public class InvoiceGeneratorService {
         }
     }
 
-    public byte[] generateDashboardReport(com.coresync.crm.dto.DashboardMetricsResponse metrics, java.util.List<com.coresync.crm.model.AuditLog> auditLogs) {
+    public byte[] generateDashboardReport(com.coresync.crm.dto.DashboardMetricsResponse metrics, java.util.List<com.coresync.crm.model.AuditLog> auditLogs, String aiInsight) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdfDoc = new PdfDocument(writer);
@@ -151,6 +152,20 @@ public class InvoiceGeneratorService {
             cardsTable.addCell(createCard("Ticket Médio", format.format(ticketMedio), highlightGreen));
 
             document.add(cardsTable.setMarginBottom(30));
+
+            // AI Insights Section (Optional)
+            if (aiInsight != null && !aiInsight.trim().isEmpty()) {
+                document.add(new Paragraph("INSIGHTS DE IA (GROQ VENDAS)").setBold().setFontSize(14).setMarginBottom(10));
+                
+                Table aiTable = new Table(UnitValue.createPercentArray(new float[]{100})).useAllAvailableWidth();
+                aiTable.addCell(new Cell()
+                        .add(new Paragraph(aiInsight).setFontSize(11).setFontColor(ColorConstants.BLACK))
+                        .setBackgroundColor(new DeviceRgb(255, 255, 230))
+                        .setPadding(15)
+                        .setBorder(new DashedBorder(ColorConstants.BLACK, 2)));
+                
+                document.add(aiTable.setMarginBottom(30));
+            }
 
             // Audit Logs Section
             document.add(new Paragraph("ÚLTIMAS MOVIMENTAÇÕES (AOP)").setBold().setFontSize(14).setMarginBottom(10));
