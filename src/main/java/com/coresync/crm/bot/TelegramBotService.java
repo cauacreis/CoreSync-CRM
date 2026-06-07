@@ -204,7 +204,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
                       .append("\n");
                 }
                 sendMessage(session.getChatId(), sb.toString());
-                sendMessage(session.getChatId(), "O que você deseja fazer a seguir?\n(Ex: 'Atualizar status do lead', 'Cadastrar novo lead')");
+                
+                String followUpMsg = "🤖 *O que você deseja fazer a seguir?*\n" +
+                                     "Responda com uma frase ou escolha uma das opções abaixo:\n\n" +
+                                     "1️⃣ Cadastrar um novo lead\n" +
+                                     "2️⃣ Atualizar o status de um lead\n" +
+                                     "3️⃣ Ver o relatório do Dashboard\n" +
+                                     "4️⃣ Pedir o link do Dashboard\n" +
+                                     "5️⃣ Listar os comandos (/comandos)";
+                sendMessage(session.getChatId(), followUpMsg);
             }
         } else {
             sendMessage(session.getChatId(), "Não entendi sua intenção. Atualmente suporto: listar leads, cadastrar leads, atualizar leads, ver relatório financeiro e enviar o link do dashboard.");
