@@ -1,12 +1,10 @@
 package com.coresync.crm.event;
 
 import com.coresync.crm.model.LeadStatus;
-import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 import java.util.UUID;
 
-@Getter
 public class LeadStatusChangedEvent extends ApplicationEvent {
     private final UUID companyId;
     private final String leadName;
@@ -19,5 +17,21 @@ public class LeadStatusChangedEvent extends ApplicationEvent {
         this.leadName = leadName;
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
+    }
+
+    public UUID getCompanyId() {
+        return companyId;
+    }
+
+    public String getLeadName() {
+        return leadName;
+    }
+
+    public LeadStatus getOldStatus() {
+        return oldStatus;
+    }
+
+    public LeadStatus getNewStatus() {
+        return newStatus;
     }
 }
