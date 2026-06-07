@@ -24,8 +24,6 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -97,6 +95,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
         try {
             if (text.startsWith("/start")) {
+                TelegramSession session = sessionRepository.findById(chatId).orElse(null);
+                if (session != null) {
+                    sendWelcomeMessageWithInlineButtons(chatId, "👋 Bem-vindo de volta! Escolha uma opção:");
+                    return;
+                }
                 sendMessage(chatId, "👋 Olá! Bem-vindo(a) ao CoreSync Assistant!\n\n" +
                                     "Para começar a usar a IA nas suas vendas, você precisa se autenticar.\n" +
                                     "Por favor, use o comando:\n" +
@@ -170,7 +173,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .build();
 
         sessionRepository.save(session);
-        sendWelcomeMessageWithButtons(chatId, "✅ Login realizado com sucesso! Bem-vindo(a) ao CoreSync Bot! 🚀\n\nEscolha uma das opções no menu abaixo ou simplesmente digite o que deseja fazer:");
+        sendWelcomeMessageWithInlineButtons(chatId, "✅ Login realizado com sucesso! Bem-vindo(a) ao CoreSync Bot! 🚀\n\nEscolha uma das opções no menu abaixo ou simplesmente digite o que deseja fazer:");
     }
 
     private void handleIdleState(TelegramSession session, String text) throws Exception {
@@ -211,10 +214,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     TenantContext.clear();
                 }
             }
-
-            sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE, VALOR ESTIMADO e STATUS do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000, NEW)");
-            session.setConversationState(ChatState.WAITING_LEAD_DATA);
-            sessionRepository.save(session);
+            doAskForNewLead(session);
         } else if ("UPDATE_LEAD".equals(intent) || intent.equals("UPDATE")) {
             List<Lead> leads = leadRepository.findAllByCompanyId(session.getCompanyId());
             if (leads.isEmpty()) {
@@ -235,45 +235,53 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
             sendMessageWithInlineKeyboard(session.getChatId(), "Selecione o lead que deseja atualizar:", markup);
         } else if ("GET_DASHBOARD".equals(intent)) {
-            try {
-                TenantContext.setTenantId(session.getCompanyId());
-                DashboardMetricsResponse metrics = dashboardService.getMetrics();
-                
-                String msg = String.format("📊 Seu CoreSync Dashboard:\n💰 Pipeline Total: US$ %.2f\n🏆 Receita Ganha: US$ %.2f\n📈 Taxa de Conversão: %.1f%%",
-                        metrics.totalPipelineValue(), metrics.totalRevenueWon(), metrics.conversionRate());
-                
-                sendMessage(session.getChatId(), msg);
-            } finally {
-                TenantContext.clear();
-            }
+            doGetDashboard(session);
         } else if ("GET_DASHBOARD_LINK".equals(intent)) {
             sendMessage(session.getChatId(), "🌐 Acesse o dashboard completo em: https://coresync.com/dashboard");
         } else if ("LIST_LEADS".equals(intent)) {
-            List<Lead> leads = leadRepository.findAllByCompanyId(session.getCompanyId());
-            if (leads.isEmpty()) {
-                sendMessage(session.getChatId(), "Sua empresa ainda não possui leads cadastrados.");
-            } else {
-                StringBuilder sb = new StringBuilder("📋 *Seus Leads Atuais:*\n\n");
-                for (Lead l : leads) {
-                    sb.append("👤 ").append(l.getName())
-                      .append(" | 📞 ").append(l.getPhone() != null ? l.getPhone() : "N/A")
-                      .append(" | 🏷️ ").append(l.getStatus())
-                      .append("\n");
-                }
-                sendMessage(session.getChatId(), sb.toString());
-                
-                String followUpMsg = "🤖 *O que você deseja fazer a seguir?*\n" +
-                                     "Responda com uma frase ou escolha uma das opções abaixo:\n\n" +
-                                     "1️⃣ Cadastrar um novo lead\n" +
-                                     "2️⃣ Atualizar o status de um lead\n" +
-                                     "3️⃣ Ver o relatório do Dashboard\n" +
-                                     "4️⃣ Pedir o link do Dashboard\n" +
-                                     "5️⃣ Listar os comandos (/comandos)";
-                sendMessage(session.getChatId(), followUpMsg);
-            }
+            doListLeads(session);
         } else {
             sendMessage(session.getChatId(), "Não entendi sua intenção. Atualmente suporto: listar leads, cadastrar leads, atualizar leads, ver relatório financeiro e enviar o link do dashboard.");
         }
+    }
+
+    private void doListLeads(TelegramSession session) {
+        List<Lead> leads = leadRepository.findAllByCompanyId(session.getCompanyId());
+        if (leads.isEmpty()) {
+            sendMessage(session.getChatId(), "Sua empresa ainda não possui leads cadastrados.");
+        } else {
+            StringBuilder sb = new StringBuilder("📋 *Seus Leads Atuais:*\n\n");
+            for (Lead l : leads) {
+                sb.append("👤 ").append(l.getName())
+                  .append(" | 📞 ").append(l.getPhone() != null ? l.getPhone() : "N/A")
+                  .append(" | 🏷️ ").append(l.getStatus())
+                  .append("\n");
+            }
+            sendMessage(session.getChatId(), sb.toString());
+            
+            String followUpMsg = "🤖 *O que você deseja fazer a seguir?*";
+            sendWelcomeMessageWithInlineButtons(session.getChatId(), followUpMsg);
+        }
+    }
+
+    private void doGetDashboard(TelegramSession session) {
+        try {
+            TenantContext.setTenantId(session.getCompanyId());
+            DashboardMetricsResponse metrics = dashboardService.getMetrics();
+            
+            String msg = String.format("📊 Seu CoreSync Dashboard:\n💰 Pipeline Total: US$ %.2f\n🏆 Receita Ganha: US$ %.2f\n📈 Taxa de Conversão: %.1f%%",
+                    metrics.totalPipelineValue(), metrics.totalRevenueWon(), metrics.conversionRate());
+            
+            sendMessage(session.getChatId(), msg);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    private void doAskForNewLead(TelegramSession session) {
+        sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE, VALOR ESTIMADO e STATUS do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000, NEW)");
+        session.setConversationState(ChatState.WAITING_LEAD_DATA);
+        sessionRepository.save(session);
     }
 
     private void handleWaitingLeadData(TelegramSession session, String text) {
@@ -435,6 +443,18 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 Lead lead = leadRepository.findByIdAndCompanyId(leadId, session.getCompanyId()).orElseThrow();
                 editMessageText(chatId, messageId, "✅ Status do lead *" + lead.getName() + "* atualizado para *" + newStatus.name() + "*!");
                 answerCallbackQuery(callbackQuery.getId(), "Status atualizado!", false);
+            } else if (data.equals("CMD_LIST_LEADS")) {
+                doListLeads(session);
+                answerCallbackQuery(callbackQuery.getId(), "Lista carregada!", false);
+            } else if (data.equals("CMD_DASHBOARD")) {
+                doGetDashboard(session);
+                answerCallbackQuery(callbackQuery.getId(), "Dashboard carregado!", false);
+            } else if (data.equals("CMD_NEW_LEAD")) {
+                doAskForNewLead(session);
+                answerCallbackQuery(callbackQuery.getId(), "Pronto para cadastrar!", false);
+            } else if (data.equals("CMD_HELP")) {
+                handleComandos(session.getChatId());
+                answerCallbackQuery(callbackQuery.getId(), "Menu exibido!", false);
             }
         } catch (Exception e) {
             log.error("Erro ao processar callback query", e);
@@ -518,34 +538,41 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
 
-    private void sendWelcomeMessageWithButtons(Long chatId, String text) {
+    private void sendWelcomeMessageWithInlineButtons(Long chatId, String text) {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId.toString());
         msg.setText(text);
         
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
-        keyboardMarkup.setOneTimeKeyboard(false);
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow row1 = new KeyboardRow();
-        row1.add("/comandos");
-        row1.add("Quais são os meus leads?");
+        InlineKeyboardButton btn1 = new InlineKeyboardButton();
+        btn1.setText("📋 Meus Leads");
+        btn1.setCallbackData("CMD_LIST_LEADS");
+        rows.add(List.of(btn1));
         
-        KeyboardRow row2 = new KeyboardRow();
-        row2.add("Como estão as vendas?");
-        row2.add("Quero cadastrar um novo lead");
+        InlineKeyboardButton btn2 = new InlineKeyboardButton();
+        btn2.setText("💰 Ver Dashboard");
+        btn2.setCallbackData("CMD_DASHBOARD");
+        rows.add(List.of(btn2));
         
-        keyboard.add(row1);
-        keyboard.add(row2);
+        InlineKeyboardButton btn3 = new InlineKeyboardButton();
+        btn3.setText("➕ Cadastrar Lead");
+        btn3.setCallbackData("CMD_NEW_LEAD");
+        rows.add(List.of(btn3));
         
-        keyboardMarkup.setKeyboard(keyboard);
-        msg.setReplyMarkup(keyboardMarkup);
+        InlineKeyboardButton btn4 = new InlineKeyboardButton();
+        btn4.setText("⚙️ Menu de Comandos");
+        btn4.setCallbackData("CMD_HELP");
+        rows.add(List.of(btn4));
+        
+        markup.setKeyboard(rows);
+        msg.setReplyMarkup(markup);
         
         try {
             execute(msg);
         } catch (TelegramApiException e) {
-            log.error("Erro ao enviar mensagem com botoes via Telegram", e);
+            log.error("Erro ao enviar mensagem de boas vindas com botoes inline", e);
         }
     }
 
