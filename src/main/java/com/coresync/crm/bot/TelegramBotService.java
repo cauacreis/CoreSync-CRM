@@ -84,6 +84,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 handleLogin(chatId, text);
                 return;
             }
+            if (text.startsWith("/comandos")) {
+                handleComandos(chatId);
+                return;
+            }
 
             TelegramSession session = sessionRepository.findById(chatId).orElse(null);
             if (session == null) {
@@ -104,6 +108,19 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "❌ Ocorreu um erro interno. A sessão foi resetada.");
             resetSession(chatId);
         }
+    }
+
+    private void handleComandos(Long chatId) {
+        String msg = "🤖 *Comandos do CoreSync Bot:*\n" +
+                "/login <email> <senha> - Fazer login na conta\n" +
+                "/comandos - Mostrar esta lista de comandos\n\n" +
+                "💬 *Diga o que você precisa (IA):*\n" +
+                "- \"Quero cadastrar um novo lead\"\n" +
+                "- \"Quais são os meus leads?\"\n" +
+                "- \"Atualizar status de um lead\"\n" +
+                "- \"Me manda o link do dashboard\"\n" +
+                "- \"Como estão as vendas?\"";
+        sendMessage(chatId, msg);
     }
 
     private void handleLogin(Long chatId, String text) {
@@ -141,7 +158,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         String intent = node.has("intent") ? node.get("intent").asText() : "UNKNOWN";
 
         if ("CREATE_LEAD".equals(intent) || intent.equals("CREATE")) {
-            sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE e VALOR ESTIMADO do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000)");
+            sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE, VALOR ESTIMADO e STATUS do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000, NEW)");
             session.setConversationState(ChatState.WAITING_LEAD_DATA);
             sessionRepository.save(session);
         } else if ("UPDATE_LEAD".equals(intent) || intent.equals("UPDATE")) {
@@ -187,6 +204,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                       .append("\n");
                 }
                 sendMessage(session.getChatId(), sb.toString());
+                sendMessage(session.getChatId(), "O que você deseja fazer a seguir?\n(Ex: 'Atualizar status do lead', 'Cadastrar novo lead')");
             }
         } else {
             sendMessage(session.getChatId(), "Não entendi sua intenção. Atualmente suporto: listar leads, cadastrar leads, atualizar leads, ver relatório financeiro e enviar o link do dashboard.");
@@ -197,7 +215,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             String[] parts = text.split(",");
             if (parts.length < 3) {
-                sendMessage(session.getChatId(), "Formato incorreto. Digite: Nome, Telefone, Valor. (Ex: Empresa X, 1199999999, 10000)");
+                sendMessage(session.getChatId(), "Formato incorreto. Digite: Nome, Telefone, Valor, [Status]. (Ex: Empresa X, 1199999999, 10000, NEW)");
                 session.setConversationState(ChatState.IDLE);
                 sessionRepository.save(session);
                 return;
@@ -207,12 +225,21 @@ public class TelegramBotService extends TelegramLongPollingBot {
             String phone = parts[1].trim();
             java.math.BigDecimal value = new java.math.BigDecimal(parts[2].trim());
 
+            LeadStatus status = LeadStatus.NEW;
+            if (parts.length >= 4) {
+                try {
+                    status = LeadStatus.valueOf(parts[3].trim().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    sendMessage(session.getChatId(), "Status '" + parts[3].trim() + "' inválido. Usando status padrão (NEW).");
+                }
+            }
+
             Lead newLead = Lead.builder()
                     .name(name)
                     .email("sem-email@telegram.bot")
                     .phone(phone)
                     .estimatedValue(value)
-                    .status(LeadStatus.NEW)
+                    .status(status)
                     .build();
 
             TenantContext.setTenantId(session.getCompanyId());
