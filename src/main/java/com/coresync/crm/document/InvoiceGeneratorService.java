@@ -84,13 +84,13 @@ public class InvoiceGeneratorService {
 
             // Metrics Section
             document.add(new Paragraph("1. Visão Geral do Pipeline").setBold().setFontSize(16).setMarginBottom(10));
-            document.add(new Paragraph("Total de Leads: " + metrics.getTotalLeads()));
-            document.add(new Paragraph("Leads Ganho (WON): " + metrics.getTotalWonLeads()));
-            document.add(new Paragraph(String.format("Taxa de Conversão: %.2f%%", metrics.getConversionRate())));
+            document.add(new Paragraph("Total de Leads: " + metrics.totalLeads()));
+            document.add(new Paragraph("Leads Ganho (WON): " + metrics.totalWonLeads()));
+            document.add(new Paragraph(String.format("Taxa de Conversão: %.2f%%", metrics.conversionRate())));
             
             NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
-            document.add(new Paragraph("Valor Total do Pipeline: " + format.format(metrics.getTotalPipelineValue())));
-            document.add(new Paragraph("Receita Total Ganha: " + format.format(metrics.getTotalRevenueWon())).setMarginBottom(20));
+            document.add(new Paragraph("Valor Total do Pipeline: " + format.format(metrics.totalPipelineValue())));
+            document.add(new Paragraph("Receita Total Ganha: " + format.format(metrics.totalRevenueWon())).setMarginBottom(20));
 
             // Audit Logs Section
             document.add(new Paragraph("2. Últimas Movimentações (Auditoria AOP)").setBold().setFontSize(16).setMarginBottom(10));

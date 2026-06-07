@@ -9,6 +9,7 @@ import com.coresync.crm.model.User;
 import com.coresync.crm.repository.LeadRepository;
 import com.coresync.crm.repository.TelegramSessionRepository;
 import com.coresync.crm.repository.UserRepository;
+import com.coresync.crm.security.TenantContext;
 import com.coresync.crm.service.LeadService;
 import com.coresync.crm.service.DashboardService;
 import com.coresync.crm.document.InvoiceGeneratorService;
@@ -286,8 +287,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     "📈 Taxa de Conversão: %.2f%%\n" +
                     "💰 Valor do Pipeline: $%.2f\n" +
                     "💵 Receita Ganha: $%.2f",
-                    metrics.getTotalLeads(), metrics.getTotalWonLeads(), metrics.getConversionRate(),
-                    metrics.getTotalPipelineValue(), metrics.getTotalRevenueWon());
+                    metrics.totalLeads(), metrics.totalWonLeads(), metrics.conversionRate(),
+                    metrics.totalPipelineValue(), metrics.totalRevenueWon());
             sendMessage(session.getChatId(), dashboardText);
             
             try {
@@ -301,6 +302,45 @@ public class TelegramBotService extends TelegramLongPollingBot {
             } catch (Exception e) {
                 log.error("Erro ao gerar PDF do Dashboard", e);
             }
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    private void handleReviewLeadCallback(Long chatId, String leadIdStr) {
+        TelegramSession session = sessionRepository.findById(chatId).orElse(null);
+        if (session == null || session.getCompanyId() == null) return;
+
+        try {
+            TenantContext.setTenantId(session.getCompanyId());
+            UUID leadId = UUID.fromString(leadIdStr);
+            Lead lead = leadRepository.findByIdAndCompanyId(leadId, session.getCompanyId()).orElse(null);
+
+            if (lead == null) {
+                sendMessage(chatId, "⚠️ Lead não encontrado.");
+                return;
+            }
+
+            sendMessage(chatId, "⏳ A IA Groq está analisando o histórico do lead " + lead.getName() + "...\nIsso pode levar alguns segundos.");
+
+            com.coresync.crm.ai.review.SalesReviewResponse review = groqClientService.reviewConversation(lead.getChatHistory());
+
+            String msg = String.format(
+                    "🤖 *AI Sales Coach - Análise de Desempenho*\n\n" +
+                    "⭐ *Nota:* %d/10\n\n" +
+                    "❌ *Erros Detectados:*\n%s\n\n" +
+                    "💡 *Sugestões de Melhoria:*\n%s\n\n" +
+                    "🛡️ *Tratamento de Objeções:*\n%s",
+                    review.score(),
+                    String.join("\n- ", review.detectedErrors().isEmpty() ? List.of("Nenhum") : review.detectedErrors()),
+                    String.join("\n- ", review.improvementSuggestions().isEmpty() ? List.of("Nenhum") : review.improvementSuggestions()),
+                    review.objectionHandlingPerformance()
+            );
+
+            sendMessage(chatId, msg);
+        } catch (Exception e) {
+            log.error("Erro ao analisar lead no Telegram", e);
+            sendMessage(chatId, "⚠️ Ocorreu um erro ao chamar a IA.");
         } finally {
             TenantContext.clear();
         }
