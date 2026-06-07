@@ -1,10 +1,12 @@
 package com.coresync.crm.service;
 
+import com.coresync.crm.event.LeadStatusChangedEvent;
 import com.coresync.crm.model.Lead;
 import com.coresync.crm.model.LeadStatus;
 import com.coresync.crm.repository.LeadRepository;
 import com.coresync.crm.security.TenantContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.UUID;
 public class LeadService {
 
     private final LeadRepository leadRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @com.coresync.crm.aop.Auditable(action = "LEAD_CREATED")
     public Lead createLead(Lead lead) {
@@ -46,7 +49,14 @@ public class LeadService {
         Lead lead = leadRepository.findByIdAndCompanyId(leadId, companyId)
                 .orElseThrow(() -> new IllegalArgumentException("Lead não encontrado ou não pertence a esta empresa"));
 
+        LeadStatus oldStatus = lead.getStatus();
         lead.setStatus(newStatus);
-        return leadRepository.save(lead);
+        Lead savedLead = leadRepository.save(lead);
+        
+        if (oldStatus != newStatus) {
+            eventPublisher.publishEvent(new LeadStatusChangedEvent(this, companyId, savedLead.getName(), oldStatus, newStatus));
+        }
+        
+        return savedLead;
     }
 }

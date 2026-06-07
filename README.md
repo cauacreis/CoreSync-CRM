@@ -97,8 +97,15 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 
 ## 🤖 Agentic CRM (Telegram + Groq)
 
-O sistema foi evoluído para suportar agentes conversacionais! 
-Agora os vendedores podem consultar e atualizar o Pipeline diretamente pelo **Telegram**, utilizando processamento de linguagem natural (NLP) alimentado pela LLM **Llama3-8B** da **Groq**.
+## Funcionalidades Chave (Agentic CRM)
+- **Painel de Vendas (React):** Listagem de leads com filtros e indicadores visuais.
+- **Bot de IA Integrado (Telegram):** Interaja com o sistema através de linguagem natural.
+- **Zero-Click Registration (NLP V2):** Cadastre leads conversando no Telegram. A IA extrai nome, telefone e valor automaticamente.
+- **Webhook Reverso e Notificações:** Quando um lead é movido no funil web, o vendedor é notificado proativamente no Telegram.
+- **UX de Ouro (Inline Keyboards):** Atualize o status dos leads diretamente pelo chat usando botões de alta performance em vez de digitar comandos numéricos pesados.
+- **Isolamento de Contas (Multi-Tenant):** Uma única instância da aplicação atende Múltiplas Empresas de forma 100% segura e isolada a nível de Banco de Dados.
+
+## Endpoints Principais
 
 ### Como configurar e testar o Bot B2B:
 

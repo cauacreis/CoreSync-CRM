@@ -26,6 +26,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+
+import org.springframework.context.event.EventListener;
+import com.coresync.crm.event.LeadStatusChangedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +83,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
+        if (update.hasCallbackQuery()) {
+            handleCallbackQuery(update.getCallbackQuery());
+            return;
+        }
+
         if (!update.hasMessage() || !update.getMessage().hasText()) {
             return;
         }
@@ -168,6 +181,37 @@ public class TelegramBotService extends TelegramLongPollingBot {
         String intent = node.has("intent") ? node.get("intent").asText() : "UNKNOWN";
 
         if ("CREATE_LEAD".equals(intent) || intent.equals("CREATE")) {
+            if (node.has("parameters") && node.get("parameters").has("name") && node.get("parameters").has("estimatedValue")) {
+                JsonNode params = node.get("parameters");
+                try {
+                    String name = params.get("name").asText();
+                    String phone = params.has("phone") ? params.get("phone").asText() : null;
+                    java.math.BigDecimal value = new java.math.BigDecimal(params.get("estimatedValue").asText());
+                    
+                    Lead newLead = Lead.builder()
+                            .name(name)
+                            .email("sem-email@telegram.bot")
+                            .phone(phone)
+                            .estimatedValue(value)
+                            .status(LeadStatus.NEW)
+                            .build();
+
+                    TenantContext.setTenantId(session.getCompanyId());
+                    User user = userRepository.findById(session.getUserId()).orElseThrow();
+                    TenantContext.setUserEmail(user.getEmail());
+
+                    leadService.createLead(newLead);
+
+                    sendMessage(session.getChatId(), "🤖🪄 *Magia NLP!* Detectei os dados automaticamente:\n" +
+                                                     "✅ Lead *" + name + "* (Valor: $" + value + ") cadastrado com sucesso direto no funil!");
+                    return;
+                } catch (Exception e) {
+                    log.error("Erro ao extrair entidades via Groq", e);
+                } finally {
+                    TenantContext.clear();
+                }
+            }
+
             sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE, VALOR ESTIMADO e STATUS do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000, NEW)");
             session.setConversationState(ChatState.WAITING_LEAD_DATA);
             sessionRepository.save(session);
@@ -178,15 +222,18 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 return;
             }
 
-            StringBuilder sb = new StringBuilder("Qual lead você deseja atualizar?\n\n");
-            for (int i = 0; i < leads.size(); i++) {
-                sb.append(i + 1).append(". ").append(leads.get(i).getName())
-                  .append(" (").append(leads.get(i).getStatus()).append(")\n");
-            }
-            sendMessage(session.getChatId(), sb.toString());
+            InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+            List<List<InlineKeyboardButton>> rows = new ArrayList<>();
             
-            session.setConversationState(ChatState.WAITING_LEAD_INDEX);
-            sessionRepository.save(session);
+            for (Lead lead : leads) {
+                InlineKeyboardButton btn = new InlineKeyboardButton();
+                btn.setText(lead.getName() + " (" + lead.getStatus() + ")");
+                btn.setCallbackData("UPDATE_LEAD:" + lead.getId());
+                rows.add(List.of(btn));
+            }
+            markup.setKeyboard(rows);
+
+            sendMessageWithInlineKeyboard(session.getChatId(), "Selecione o lead que deseja atualizar:", markup);
         } else if ("GET_DASHBOARD".equals(intent)) {
             try {
                 TenantContext.setTenantId(session.getCompanyId());
@@ -349,6 +396,128 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
 
+    private void handleCallbackQuery(CallbackQuery callbackQuery) {
+        String data = callbackQuery.getData();
+        Long chatId = callbackQuery.getMessage().getChatId();
+        Integer messageId = callbackQuery.getMessage().getMessageId();
+        
+        try {
+            TelegramSession session = sessionRepository.findById(chatId).orElse(null);
+            if (session == null) {
+                answerCallbackQuery(callbackQuery.getId(), "Sessão expirada. Faça login novamente.", true);
+                return;
+            }
+
+            TenantContext.setTenantId(session.getCompanyId());
+            User user = userRepository.findById(session.getUserId()).orElseThrow();
+            TenantContext.setUserEmail(user.getEmail());
+
+            if (data.startsWith("UPDATE_LEAD:")) {
+                String leadIdStr = data.split(":")[1];
+                UUID leadId = UUID.fromString(leadIdStr);
+                Lead lead = leadRepository.findByIdAndCompanyId(leadId, session.getCompanyId()).orElse(null);
+                
+                if (lead == null) {
+                    answerCallbackQuery(callbackQuery.getId(), "Lead não encontrado.", true);
+                    return;
+                }
+
+                editMessageWithStatusButtons(chatId, messageId, lead);
+                answerCallbackQuery(callbackQuery.getId(), "Lead " + lead.getName() + " selecionado.", false);
+
+            } else if (data.startsWith("SET_STATUS:")) {
+                String[] parts = data.split(":");
+                UUID leadId = UUID.fromString(parts[1]);
+                LeadStatus newStatus = LeadStatus.valueOf(parts[2]);
+                
+                leadService.updateLeadStatus(leadId, newStatus);
+                
+                Lead lead = leadRepository.findByIdAndCompanyId(leadId, session.getCompanyId()).orElseThrow();
+                editMessageText(chatId, messageId, "✅ Status do lead *" + lead.getName() + "* atualizado para *" + newStatus.name() + "*!");
+                answerCallbackQuery(callbackQuery.getId(), "Status atualizado!", false);
+            }
+        } catch (Exception e) {
+            log.error("Erro ao processar callback query", e);
+            answerCallbackQuery(callbackQuery.getId(), "Ocorreu um erro ao processar a ação.", true);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+
+    private void answerCallbackQuery(String callbackQueryId, String text, boolean showAlert) {
+        AnswerCallbackQuery answer = new AnswerCallbackQuery();
+        answer.setCallbackQueryId(callbackQueryId);
+        answer.setText(text);
+        answer.setShowAlert(showAlert);
+        try {
+            execute(answer);
+        } catch (TelegramApiException e) {
+            log.error("Erro ao responder callback query", e);
+        }
+    }
+
+    private void editMessageText(Long chatId, Integer messageId, String text) {
+        EditMessageText edit = new EditMessageText();
+        edit.setChatId(chatId.toString());
+        edit.setMessageId(messageId);
+        edit.setText(text);
+        edit.setParseMode("Markdown");
+        try {
+            execute(edit);
+        } catch (TelegramApiException e) {
+            log.error("Erro ao editar mensagem", e);
+        }
+    }
+
+    private void editMessageWithStatusButtons(Long chatId, Integer messageId, Lead lead) {
+        EditMessageText edit = new EditMessageText();
+        edit.setChatId(chatId.toString());
+        edit.setMessageId(messageId);
+        edit.setText("Lead selecionado: *" + lead.getName() + "*\nStatus atual: " + lead.getStatus() + "\n\nSelecione o novo status:");
+        edit.setParseMode("Markdown");
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        for (LeadStatus status : LeadStatus.values()) {
+            InlineKeyboardButton btn = new InlineKeyboardButton();
+            btn.setText(status.name());
+            btn.setCallbackData("SET_STATUS:" + lead.getId() + ":" + status.name());
+            row1.add(btn);
+            
+            if (row1.size() == 2) {
+                rows.add(row1);
+                row1 = new ArrayList<>();
+            }
+        }
+        if (!row1.isEmpty()) {
+            rows.add(row1);
+        }
+        
+        markup.setKeyboard(rows);
+        edit.setReplyMarkup(markup);
+
+        try {
+            execute(edit);
+        } catch (TelegramApiException e) {
+            log.error("Erro ao editar mensagem com botões de status", e);
+        }
+    }
+
+    private void sendMessageWithInlineKeyboard(Long chatId, String text, InlineKeyboardMarkup markup) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId.toString());
+        msg.setText(text);
+        msg.setReplyMarkup(markup);
+        msg.setParseMode("Markdown");
+        try {
+            execute(msg);
+        } catch (TelegramApiException e) {
+            log.error("Erro ao enviar mensagem com inline keyboard", e);
+        }
+    }
+
     private void sendWelcomeMessageWithButtons(Long chatId, String text) {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId.toString());
@@ -377,6 +546,18 @@ public class TelegramBotService extends TelegramLongPollingBot {
             execute(msg);
         } catch (TelegramApiException e) {
             log.error("Erro ao enviar mensagem com botoes via Telegram", e);
+        }
+    }
+
+    @EventListener
+    public void onLeadStatusChanged(LeadStatusChangedEvent event) {
+        Iterable<TelegramSession> allSessions = sessionRepository.findAll();
+        for (TelegramSession session : allSessions) {
+            if (session.getCompanyId() != null && session.getCompanyId().equals(event.getCompanyId())) {
+                String message = String.format("🔔 *Notificação do Sistema:*\nO lead *%s* foi movido da fase %s para a fase *%s* no painel web!",
+                        event.getLeadName(), event.getOldStatus().name(), event.getNewStatus().name());
+                sendMessage(session.getChatId(), message);
+            }
         }
     }
 }
