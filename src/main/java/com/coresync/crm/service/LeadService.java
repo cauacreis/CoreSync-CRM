@@ -54,7 +54,7 @@ public class LeadService {
         Lead savedLead = leadRepository.save(lead);
         
         if (oldStatus != newStatus) {
-            eventPublisher.publishEvent(new LeadStatusChangedEvent(this, companyId, savedLead.getName(), oldStatus, newStatus));
+            eventPublisher.publishEvent(new LeadStatusChangedEvent(this, companyId, savedLead.getId(), savedLead.getName(), oldStatus, newStatus));
         }
         
         return savedLead;

@@ -12,6 +12,7 @@ import com.coresync.crm.repository.UserRepository;
 import com.coresync.crm.security.TenantContext;
 import com.coresync.crm.service.LeadService;
 import com.coresync.crm.service.DashboardService;
+import com.coresync.crm.document.InvoiceGeneratorService;
 import com.coresync.crm.dto.DashboardMetricsResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -33,6 +36,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.springframework.context.event.EventListener;
 import com.coresync.crm.event.LeadStatusChangedEvent;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -50,6 +54,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private final LeadService leadService;
     private final DashboardService dashboardService;
     private final ObjectMapper objectMapper;
+    private final InvoiceGeneratorService invoiceGeneratorService;
 
     public TelegramBotService(
             @Value("${telegram.bot.token}") String botToken,
@@ -61,7 +66,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
             LeadRepository leadRepository,
             LeadService leadService,
             DashboardService dashboardService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            InvoiceGeneratorService invoiceGeneratorService) {
         super(botToken);
         this.botUsername = botUsername;
         this.groqClientService = groqClientService;
@@ -72,6 +78,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         this.leadService = leadService;
         this.dashboardService = dashboardService;
         this.objectMapper = objectMapper;
+        this.invoiceGeneratorService = invoiceGeneratorService;
     }
 
     @Override
@@ -584,6 +591,23 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 String message = String.format("🔔 *Notificação do Sistema:*\nO lead *%s* foi movido da fase %s para a fase *%s* no painel web!",
                         event.getLeadName(), event.getOldStatus().name(), event.getNewStatus().name());
                 sendMessage(session.getChatId(), message);
+                
+                if (event.getNewStatus() == LeadStatus.WON) {
+                    try {
+                        Lead lead = leadRepository.findById(event.getLeadId()).orElse(null);
+                        if (lead != null) {
+                            byte[] pdfBytes = invoiceGeneratorService.generateContractPdf(lead);
+                            SendDocument sendDocument = new SendDocument();
+                            sendDocument.setChatId(session.getChatId().toString());
+                            sendDocument.setDocument(new InputFile(new ByteArrayInputStream(pdfBytes), "Contrato_" + lead.getName().replace(" ", "_") + ".pdf"));
+                            sendDocument.setCaption("🎉 Venda Fechada! Aqui está o rascunho do contrato do lead.");
+                            execute(sendDocument);
+                        }
+                    } catch (Exception e) {
+                        log.error("Erro ao gerar ou enviar PDF do contrato para o Telegram", e);
+                        sendMessage(session.getChatId(), "⚠️ A venda foi registrada, mas ocorreu um erro ao gerar o PDF do contrato.");
+                    }
+                }
             }
         }
     }

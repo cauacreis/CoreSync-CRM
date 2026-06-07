@@ -102,6 +102,7 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 - **Bot de IA Integrado (Telegram):** Interaja com o sistema através de linguagem natural.
 - **Zero-Click Registration (NLP V2):** Cadastre leads conversando no Telegram. A IA extrai nome, telefone e valor automaticamente.
 - **Webhook Reverso e Notificações:** Quando um lead é movido no funil web, o vendedor é notificado proativamente no Telegram.
+- **Faturamento Automatizado:** Quando uma venda é fechada (WON), o Bot envia instantaneamente um contrato em PDF limpo, gerado em memória de forma segura (sem vazar dados para o disco).
 - **UX de Ouro (Inline Keyboards):** Atualize o status dos leads diretamente pelo chat usando botões de alta performance em vez de digitar comandos numéricos pesados.
 - **Isolamento de Contas (Multi-Tenant):** Uma única instância da aplicação atende Múltiplas Empresas de forma 100% segura e isolada a nível de Banco de Dados.
 
