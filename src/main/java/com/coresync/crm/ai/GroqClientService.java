@@ -15,8 +15,8 @@ public class GroqClientService {
 
     public GroqClientService(
             @Value("${groq.api.key}") String groqApiKey,
-            @Value("${groq.api.url}") String groqApiUrl,
-            @Value("${groq.api.model}") String groqApiModel) {
+            @Value("${groq.api.url:https://api.groq.com/openai/v1/chat/completions}") String groqApiUrl,
+            @Value("${groq.api.model:llama-3.1-8b-instant}") String groqApiModel) {
         this.webClient = WebClient.builder()
                 .baseUrl(groqApiUrl)
                 .defaultHeader("Authorization", "Bearer " + groqApiKey)
