@@ -31,9 +31,9 @@ public class GroqClientService {
     public record GroqResponse(List<GroqChoice> choices) {}
 
     public String classifyIntent(String userInput) {
-        String systemPrompt = "Você é um classificador de intenções de um CRM B2B. O usuário pode querer cadastrar um lead, atualizar um lead ou ver o dashboard financeiro. " +
-                "Responda EXATAMENTE em JSON rigoroso com a intenção correta: CREATE_LEAD, UPDATE_LEAD, GET_DASHBOARD ou UNKNOWN. " +
-                "Exemplo: 'Quero cadastrar um lead' -> {\"intent\": \"CREATE_LEAD\"}. 'Como estão as vendas?' -> {\"intent\": \"GET_DASHBOARD\"}.";
+        String systemPrompt = "Você é um classificador de intenções de um CRM B2B. O usuário pode querer cadastrar um lead, atualizar um lead, ver o dashboard financeiro, pedir o link do dashboard ou listar os leads. " +
+                "Responda EXATAMENTE em JSON rigoroso com a intenção correta: CREATE_LEAD, UPDATE_LEAD, GET_DASHBOARD, GET_DASHBOARD_LINK, LIST_LEADS ou UNKNOWN. " +
+                "Exemplo: 'Quero cadastrar um lead' -> {\"intent\": \"CREATE_LEAD\"}. 'Como estão as vendas?' -> {\"intent\": \"GET_DASHBOARD\"}. 'Me manda o link do dashboard' -> {\"intent\": \"GET_DASHBOARD_LINK\"}. 'Quais são os meus leads?' -> {\"intent\": \"LIST_LEADS\"}.";
 
         GroqRequest request = new GroqRequest(
                 List.of(

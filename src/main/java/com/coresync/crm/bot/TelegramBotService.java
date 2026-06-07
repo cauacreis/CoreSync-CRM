@@ -140,11 +140,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
         JsonNode node = objectMapper.readTree(jsonIntent);
         String intent = node.has("intent") ? node.get("intent").asText() : "UNKNOWN";
 
-        if ("CREATE_LEAD".equals(intent) || intent.contains("CREATE")) {
+        if ("CREATE_LEAD".equals(intent) || intent.equals("CREATE")) {
             sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE e VALOR ESTIMADO do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000)");
             session.setConversationState(ChatState.WAITING_LEAD_DATA);
             sessionRepository.save(session);
-        } else if ("UPDATE_LEAD".equals(intent) || intent.contains("UPDATE")) {
+        } else if ("UPDATE_LEAD".equals(intent) || intent.equals("UPDATE")) {
             List<Lead> leads = leadRepository.findAllByCompanyId(session.getCompanyId());
             if (leads.isEmpty()) {
                 sendMessage(session.getChatId(), "Sua empresa ainda não possui leads.");
@@ -160,7 +160,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             
             session.setConversationState(ChatState.WAITING_LEAD_INDEX);
             sessionRepository.save(session);
-        } else if ("GET_DASHBOARD".equals(intent) || intent.contains("DASHBOARD")) {
+        } else if ("GET_DASHBOARD".equals(intent)) {
             try {
                 TenantContext.setTenantId(session.getCompanyId());
                 DashboardMetricsResponse metrics = dashboardService.getMetrics();
@@ -172,8 +172,24 @@ public class TelegramBotService extends TelegramLongPollingBot {
             } finally {
                 TenantContext.clear();
             }
+        } else if ("GET_DASHBOARD_LINK".equals(intent)) {
+            sendMessage(session.getChatId(), "🌐 Acesse o dashboard completo em: https://coresync.com/dashboard");
+        } else if ("LIST_LEADS".equals(intent)) {
+            List<Lead> leads = leadRepository.findAllByCompanyId(session.getCompanyId());
+            if (leads.isEmpty()) {
+                sendMessage(session.getChatId(), "Sua empresa ainda não possui leads cadastrados.");
+            } else {
+                StringBuilder sb = new StringBuilder("📋 *Seus Leads Atuais:*\n\n");
+                for (Lead l : leads) {
+                    sb.append("👤 ").append(l.getName())
+                      .append(" | 📞 ").append(l.getPhone() != null ? l.getPhone() : "N/A")
+                      .append(" | 🏷️ ").append(l.getStatus())
+                      .append("\n");
+                }
+                sendMessage(session.getChatId(), sb.toString());
+            }
         } else {
-            sendMessage(session.getChatId(), "Não entendi sua intenção. Atualmente suporto cadastro de leads, atualização de status e visualização do dashboard.");
+            sendMessage(session.getChatId(), "Não entendi sua intenção. Atualmente suporto: listar leads, cadastrar leads, atualizar leads, ver relatório financeiro e enviar o link do dashboard.");
         }
     }
 
