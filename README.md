@@ -121,8 +121,11 @@ Abra o chat com seu bot e digite o comando abaixo para se autenticar como o admi
 `/login admin@alpha.com 123`
 
 **4. Interaja naturalmente!**
-Mande uma mensagem como *"Quero atualizar o status de um lead"*. 
-A LLM (Groq) classificará a intenção, a Máquina de Estados do Bot listará os Leads da sua empresa, e você poderá movê-los livremente pelo pipeline do CRM usando apenas texto!
+Mande mensagens no seu formato favorito:
+- *"Quero cadastrar um lead"* -> O bot pedirá os dados separados por vírgula (Ex: Empresa X, 119999, 50000) e fará a injeção diretamente no seu pipeline.
+- *"Como estão as vendas?"* ou *"Resumo"* -> O bot trará instantaneamente o Dashboard Financeiro atualizado.
+- *"Quero atualizar o status de um lead"* -> O bot lista os leads e você move eles de estágio.
+A LLM (Groq) classificará a intenção e a Máquina de Estados operará perfeitamente o sistema usando seu `TenantContext`.
 
 ---
 *Produto arquitetado e codificado sob excelência em 2026. Stand-by ativado.*

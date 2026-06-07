@@ -11,6 +11,8 @@ import com.coresync.crm.repository.TelegramSessionRepository;
 import com.coresync.crm.repository.UserRepository;
 import com.coresync.crm.security.TenantContext;
 import com.coresync.crm.service.LeadService;
+import com.coresync.crm.service.DashboardService;
+import com.coresync.crm.dto.DashboardMetricsResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private final PasswordEncoder passwordEncoder;
     private final LeadRepository leadRepository;
     private final LeadService leadService;
+    private final DashboardService dashboardService;
     private final ObjectMapper objectMapper;
 
     public TelegramBotService(
@@ -48,6 +51,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             PasswordEncoder passwordEncoder,
             LeadRepository leadRepository,
             LeadService leadService,
+            DashboardService dashboardService,
             ObjectMapper objectMapper) {
         super(botToken);
         this.botUsername = botUsername;
@@ -57,6 +61,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         this.passwordEncoder = passwordEncoder;
         this.leadRepository = leadRepository;
         this.leadService = leadService;
+        this.dashboardService = dashboardService;
         this.objectMapper = objectMapper;
     }
 
@@ -91,6 +96,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 case IDLE -> handleIdleState(session, text);
                 case WAITING_LEAD_INDEX -> handleWaitingLeadIndex(session, text);
                 case WAITING_STATUS -> handleWaitingStatus(session, text);
+                case WAITING_LEAD_DATA -> handleWaitingLeadData(session, text);
             }
 
         } catch (Exception e) {
@@ -134,7 +140,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
         JsonNode node = objectMapper.readTree(jsonIntent);
         String intent = node.has("intent") ? node.get("intent").asText() : "UNKNOWN";
 
-        if ("UPDATE_LEAD".equals(intent) || intent.contains("UPDATE")) {
+        if ("CREATE_LEAD".equals(intent) || intent.contains("CREATE")) {
+            sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE e VALOR ESTIMADO do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000)");
+            session.setConversationState(ChatState.WAITING_LEAD_DATA);
+            sessionRepository.save(session);
+        } else if ("UPDATE_LEAD".equals(intent) || intent.contains("UPDATE")) {
             List<Lead> leads = leadRepository.findAllByCompanyId(session.getCompanyId());
             if (leads.isEmpty()) {
                 sendMessage(session.getChatId(), "Sua empresa ainda não possui leads.");
@@ -150,8 +160,64 @@ public class TelegramBotService extends TelegramLongPollingBot {
             
             session.setConversationState(ChatState.WAITING_LEAD_INDEX);
             sessionRepository.save(session);
+        } else if ("GET_DASHBOARD".equals(intent) || intent.contains("DASHBOARD")) {
+            try {
+                TenantContext.setTenantId(session.getCompanyId());
+                DashboardMetricsResponse metrics = dashboardService.getMetrics();
+                
+                String msg = String.format("📊 Seu CoreSync Dashboard:\n💰 Pipeline Total: US$ %.2f\n🏆 Receita Ganha: US$ %.2f\n📈 Taxa de Conversão: %.1f%%",
+                        metrics.totalPipelineValue(), metrics.totalRevenueWon(), metrics.conversionRate());
+                
+                sendMessage(session.getChatId(), msg);
+            } finally {
+                TenantContext.clear();
+            }
         } else {
-            sendMessage(session.getChatId(), "Não entendi sua intenção. Atualmente só suporto atualização de leads (ex: 'Quero atualizar um lead').");
+            sendMessage(session.getChatId(), "Não entendi sua intenção. Atualmente suporto cadastro de leads, atualização de status e visualização do dashboard.");
+        }
+    }
+
+    private void handleWaitingLeadData(TelegramSession session, String text) {
+        try {
+            String[] parts = text.split(",");
+            if (parts.length < 3) {
+                sendMessage(session.getChatId(), "Formato incorreto. Digite: Nome, Telefone, Valor. (Ex: Empresa X, 1199999999, 10000)");
+                session.setConversationState(ChatState.IDLE);
+                sessionRepository.save(session);
+                return;
+            }
+
+            String name = parts[0].trim();
+            String phone = parts[1].trim();
+            java.math.BigDecimal value = new java.math.BigDecimal(parts[2].trim());
+
+            Lead newLead = Lead.builder()
+                    .name(name)
+                    .phone(phone)
+                    .estimatedValue(value)
+                    .status(LeadStatus.NEW)
+                    .build();
+
+            TenantContext.setTenantId(session.getCompanyId());
+            User user = userRepository.findById(session.getUserId()).orElseThrow();
+            TenantContext.setUserEmail(user.getEmail());
+
+            leadService.createLead(newLead);
+
+            sendMessage(session.getChatId(), "✅ Lead " + name + " cadastrado com sucesso no funil!");
+            
+            session.setConversationState(ChatState.IDLE);
+            sessionRepository.save(session);
+
+        } catch (NumberFormatException e) {
+            sendMessage(session.getChatId(), "O valor do lead deve ser um número válido. Tente novamente do zero (ex: Quero criar lead).");
+            resetSession(session.getChatId());
+        } catch (Exception e) {
+            log.error("Erro ao cadastrar lead", e);
+            sendMessage(session.getChatId(), "Erro ao cadastrar lead. Tente novamente do zero.");
+            resetSession(session.getChatId());
+        } finally {
+            TenantContext.clear();
         }
     }
 
