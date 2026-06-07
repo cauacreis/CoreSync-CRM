@@ -24,7 +24,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -147,7 +150,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .build();
 
         sessionRepository.save(session);
-        sendMessage(chatId, "✅ Login realizado com sucesso! Como posso ajudar nas vendas hoje?");
+        sendWelcomeMessageWithButtons(chatId, "✅ Login realizado com sucesso! Bem-vindo(a) ao CoreSync Bot! 🚀\n\nEscolha uma das opções no menu abaixo ou simplesmente digite o que deseja fazer:");
     }
 
     private void handleIdleState(TelegramSession session, String text) throws Exception {
@@ -336,6 +339,37 @@ public class TelegramBotService extends TelegramLongPollingBot {
             execute(msg);
         } catch (TelegramApiException e) {
             log.error("Erro ao enviar mensagem via Telegram", e);
+        }
+    }
+
+    private void sendWelcomeMessageWithButtons(Long chatId, String text) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId.toString());
+        msg.setText(text);
+        
+        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+        keyboardMarkup.setResizeKeyboard(true);
+        keyboardMarkup.setOneTimeKeyboard(false);
+        
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add("/comandos");
+        row1.add("Quais são os meus leads?");
+        
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add("Como estão as vendas?");
+        row2.add("Quero cadastrar um novo lead");
+        
+        keyboard.add(row1);
+        keyboard.add(row2);
+        
+        keyboardMarkup.setKeyboard(keyboard);
+        msg.setReplyMarkup(keyboardMarkup);
+        
+        try {
+            execute(msg);
+        } catch (TelegramApiException e) {
+            log.error("Erro ao enviar mensagem com botoes via Telegram", e);
         }
     }
 }
