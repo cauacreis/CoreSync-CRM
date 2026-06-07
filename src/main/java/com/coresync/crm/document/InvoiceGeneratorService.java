@@ -63,4 +63,51 @@ public class InvoiceGeneratorService {
             throw new RuntimeException("Erro ao gerar PDF do contrato em memoria", e);
         }
     }
+
+    public byte[] generateDashboardReport(com.coresync.crm.dto.DashboardMetricsResponse metrics, java.util.List<com.coresync.crm.model.AuditLog> auditLogs) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            PdfWriter writer = new PdfWriter(baos);
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            Document document = new Document(pdfDoc);
+
+            // Title
+            Paragraph title = new Paragraph("RELATÓRIO DE INSIGHTS EXECUTIVOS")
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setBold()
+                    .setFontSize(20)
+                    .setMarginBottom(20);
+            document.add(title);
+
+            // Timestamp
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            document.add(new Paragraph("Gerado em: " + LocalDateTime.now().format(dtf)).setTextAlignment(TextAlignment.RIGHT).setMarginBottom(20));
+
+            // Metrics Section
+            document.add(new Paragraph("1. Visão Geral do Pipeline").setBold().setFontSize(16).setMarginBottom(10));
+            document.add(new Paragraph("Total de Leads: " + metrics.getTotalLeads()));
+            document.add(new Paragraph("Leads Ganho (WON): " + metrics.getTotalWonLeads()));
+            document.add(new Paragraph(String.format("Taxa de Conversão: %.2f%%", metrics.getConversionRate())));
+            
+            NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
+            document.add(new Paragraph("Valor Total do Pipeline: " + format.format(metrics.getTotalPipelineValue())));
+            document.add(new Paragraph("Receita Total Ganha: " + format.format(metrics.getTotalRevenueWon())).setMarginBottom(20));
+
+            // Audit Logs Section
+            document.add(new Paragraph("2. Últimas Movimentações (Auditoria AOP)").setBold().setFontSize(16).setMarginBottom(10));
+            if (auditLogs == null || auditLogs.isEmpty()) {
+                document.add(new Paragraph("Nenhuma movimentação recente registrada."));
+            } else {
+                for (com.coresync.crm.model.AuditLog log : auditLogs) {
+                    String logLine = String.format("[%s] %s executou '%s' em '%s'", 
+                        log.getTimestamp().format(dtf), log.getPerformedBy(), log.getAction(), log.getEntityName());
+                    document.add(new Paragraph(logLine).setFontSize(10));
+                }
+            }
+
+            document.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar PDF do relatório em memoria", e);
+        }
+    }
 }

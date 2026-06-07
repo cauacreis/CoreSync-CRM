@@ -59,4 +59,26 @@ public class LeadService {
         
         return savedLead;
     }
+
+    @com.coresync.crm.aop.Auditable(action = "LEAD_INTERACTION_ADDED")
+    public Lead addInteractionToLead(UUID leadId, String message) {
+        UUID companyId = TenantContext.getTenantId();
+        if (companyId == null) {
+            throw new IllegalStateException("Acesso negado: TenantContext não possui companyId");
+        }
+
+        Lead lead = leadRepository.findByIdAndCompanyId(leadId, companyId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead não encontrado ou não pertence a esta empresa"));
+
+        String history = lead.getChatHistory();
+        if (history == null) {
+            history = "";
+        }
+        
+        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+        String newEntry = String.format("[%s] %s\n", timestamp, message);
+        
+        lead.setChatHistory(history + newEntry);
+        return leadRepository.save(lead);
+    }
 }

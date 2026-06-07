@@ -9,11 +9,12 @@ import com.coresync.crm.model.User;
 import com.coresync.crm.repository.LeadRepository;
 import com.coresync.crm.repository.TelegramSessionRepository;
 import com.coresync.crm.repository.UserRepository;
-import com.coresync.crm.security.TenantContext;
 import com.coresync.crm.service.LeadService;
 import com.coresync.crm.service.DashboardService;
 import com.coresync.crm.document.InvoiceGeneratorService;
 import com.coresync.crm.dto.DashboardMetricsResponse;
+import com.coresync.crm.repository.AuditLogRepository;
+import com.coresync.crm.model.AuditLog;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private final DashboardService dashboardService;
     private final ObjectMapper objectMapper;
     private final InvoiceGeneratorService invoiceGeneratorService;
+    private final AuditLogRepository auditLogRepository;
 
     public TelegramBotService(
             @Value("${telegram.bot.token}") String botToken,
@@ -67,7 +69,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
             LeadService leadService,
             DashboardService dashboardService,
             ObjectMapper objectMapper,
-            InvoiceGeneratorService invoiceGeneratorService) {
+            InvoiceGeneratorService invoiceGeneratorService,
+            AuditLogRepository auditLogRepository) {
         super(botToken);
         this.botUsername = botUsername;
         this.groqClientService = groqClientService;
@@ -79,6 +82,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         this.dashboardService = dashboardService;
         this.objectMapper = objectMapper;
         this.invoiceGeneratorService = invoiceGeneratorService;
+        this.auditLogRepository = auditLogRepository;
     }
 
     @Override
@@ -275,11 +279,28 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             TenantContext.setTenantId(session.getCompanyId());
             DashboardMetricsResponse metrics = dashboardService.getMetrics();
+            String dashboardText = String.format(
+                    "📊 *Dashboard CoreSync*\n\n" +
+                    "👥 Total de Leads: %d\n" +
+                    "🏆 Leads Ganho: %d\n" +
+                    "📈 Taxa de Conversão: %.2f%%\n" +
+                    "💰 Valor do Pipeline: $%.2f\n" +
+                    "💵 Receita Ganha: $%.2f",
+                    metrics.getTotalLeads(), metrics.getTotalWonLeads(), metrics.getConversionRate(),
+                    metrics.getTotalPipelineValue(), metrics.getTotalRevenueWon());
+            sendMessage(session.getChatId(), dashboardText);
             
-            String msg = String.format("📊 Seu CoreSync Dashboard:\n💰 Pipeline Total: US$ %.2f\n🏆 Receita Ganha: US$ %.2f\n📈 Taxa de Conversão: %.1f%%",
-                    metrics.totalPipelineValue(), metrics.totalRevenueWon(), metrics.conversionRate());
-            
-            sendMessage(session.getChatId(), msg);
+            try {
+                List<AuditLog> auditLogs = auditLogRepository.findAllByCompanyIdOrderByTimestampDesc(session.getCompanyId());
+                byte[] pdfBytes = invoiceGeneratorService.generateDashboardReport(metrics, auditLogs);
+                SendDocument sendDocument = new SendDocument();
+                sendDocument.setChatId(session.getChatId().toString());
+                sendDocument.setDocument(new InputFile(new ByteArrayInputStream(pdfBytes), "DashboardReport.pdf"));
+                sendDocument.setCaption("📄 Aqui está o seu Relatório de Insights Executivos em PDF.");
+                execute(sendDocument);
+            } catch (Exception e) {
+                log.error("Erro ao gerar PDF do Dashboard", e);
+            }
         } finally {
             TenantContext.clear();
         }
@@ -462,6 +483,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
             } else if (data.equals("CMD_HELP")) {
                 handleComandos(session.getChatId());
                 answerCallbackQuery(callbackQuery.getId(), "Menu exibido!", false);
+            } else if (data.startsWith("REVIEW_LEAD:")) {
+                String leadIdStr = data.split(":")[1];
+                handleReviewLeadCallback(chatId, leadIdStr);
+                answerCallbackQuery(callbackQuery.getId(), "Análise em andamento...", false);
             }
         } catch (Exception e) {
             log.error("Erro ao processar callback query", e);
@@ -521,6 +546,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (!row1.isEmpty()) {
             rows.add(row1);
         }
+
+        InlineKeyboardButton reviewButton = new InlineKeyboardButton();
+        reviewButton.setText("🔍 Analisar Desempenho");
+        reviewButton.setCallbackData("REVIEW_LEAD:" + lead.getId());
+        rows.add(List.of(reviewButton));
         
         markup.setKeyboard(rows);
         edit.setReplyMarkup(markup);

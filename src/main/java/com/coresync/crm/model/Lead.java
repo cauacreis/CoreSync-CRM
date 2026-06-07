@@ -35,4 +35,7 @@ public class Lead {
 
     @Column(nullable = false, name = "company_id")
     private UUID companyId;
+
+    @Column(columnDefinition = "TEXT")
+    private String chatHistory;
 }

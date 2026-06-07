@@ -4,6 +4,8 @@ import com.coresync.crm.dto.LeadRequest;
 import com.coresync.crm.dto.UpdateStatusRequest;
 import com.coresync.crm.model.Lead;
 import com.coresync.crm.service.LeadService;
+import com.coresync.crm.ai.GroqClientService;
+import com.coresync.crm.security.TenantContext;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.UUID;
 public class LeadController {
 
     private final LeadService leadService;
+    private final GroqClientService groqClientService;
 
     @PostMapping
     public ResponseEntity<Lead> createLead(@Valid @RequestBody LeadRequest request) {
@@ -46,5 +49,34 @@ public class LeadController {
             @Valid @RequestBody UpdateStatusRequest request) {
         Lead updatedLead = leadService.updateLeadStatus(id, request.getStatus());
         return ResponseEntity.ok(updatedLead);
+    }
+
+    @PostMapping("/{id}/interactions")
+    public ResponseEntity<Lead> addInteraction(
+            @PathVariable UUID id,
+            @RequestBody java.util.Map<String, String> payload) {
+        String message = payload.get("message");
+        if (message == null || message.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Lead updatedLead = leadService.addInteractionToLead(id, message);
+        return ResponseEntity.ok(updatedLead);
+    }
+
+    @GetMapping("/{id}/review")
+    public ResponseEntity<com.coresync.crm.ai.review.SalesReviewResponse> reviewLeadConversation(
+            @PathVariable UUID id) {
+
+        Lead lead = leadService.getLeads().stream()
+                .filter(l -> l.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+
+        if (lead == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        com.coresync.crm.ai.review.SalesReviewResponse review = groqClientService.reviewConversation(lead.getChatHistory());
+        return ResponseEntity.ok(review);
     }
 }

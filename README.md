@@ -101,8 +101,10 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 - **Painel de Vendas (React):** Listagem de leads com filtros e indicadores visuais.
 - **Bot de IA Integrado (Telegram):** Interaja com o sistema através de linguagem natural.
 - **Zero-Click Registration (NLP V2):** Cadastre leads conversando no Telegram. A IA extrai nome, telefone e valor automaticamente.
+- **AI Sales Coach (NLP V3):** A IA (Groq Llama 3) analisa o histórico de conversas do vendedor com o Lead, pontuando o desempenho, identificando erros de negociação e sugerindo dicas de quebra de objeção diretamente no Telegram.
 - **Webhook Reverso e Notificações:** Quando um lead é movido no funil web, o vendedor é notificado proativamente no Telegram.
-- **Faturamento Automatizado:** Quando uma venda é fechada (WON), o Bot envia instantaneamente um contrato em PDF limpo, gerado em memória de forma segura (sem vazar dados para o disco).
+- **Exportable BI & Relatórios:** Resumos executivos exportáveis (PDF) gerados em memória com saúde do pipeline e auditoria das ações recentes, distribuídos no Painel Web ou via Bot.
+- **Faturamento Automatizado:** Quando uma venda é fechada (WON), o Bot envia instantaneamente um contrato em PDF limpo, gerado em memória de forma segura.
 - **UX de Ouro (Inline Keyboards):** Atualize o status dos leads diretamente pelo chat usando botões de alta performance em vez de digitar comandos numéricos pesados.
 - **Isolamento de Contas (Multi-Tenant):** Uma única instância da aplicação atende Múltiplas Empresas de forma 100% segura e isolada a nível de Banco de Dados.
 
