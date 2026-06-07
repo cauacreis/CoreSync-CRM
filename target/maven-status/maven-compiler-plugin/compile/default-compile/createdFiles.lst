@@ -10,6 +10,7 @@ com\coresync\crm\service\DashboardService.class
 com\coresync\crm\repository\AuditLogRepository.class
 com\coresync\crm\repository\LeadRepository.class
 com\coresync\crm\service\LeadService.class
+com\coresync\crm\config\TelegramConfig.class
 com\coresync\crm\config\SecurityConfig.class
 com\coresync\crm\controller\DashboardController.class
 com\coresync\crm\ai\GroqClientService$GroqRequest.class
