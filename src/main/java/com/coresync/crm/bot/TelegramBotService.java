@@ -83,6 +83,13 @@ public class TelegramBotService extends TelegramLongPollingBot {
         String text = update.getMessage().getText().trim();
 
         try {
+            if (text.startsWith("/start")) {
+                sendMessage(chatId, "👋 Olá! Bem-vindo(a) ao CoreSync Assistant!\n\n" +
+                                    "Para começar a usar a IA nas suas vendas, você precisa se autenticar.\n" +
+                                    "Por favor, use o comando:\n" +
+                                    "`/login <seu-email> <sua-senha>`");
+                return;
+            }
             if (text.startsWith("/login")) {
                 handleLogin(chatId, text);
                 return;
