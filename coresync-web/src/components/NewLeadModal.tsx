@@ -12,7 +12,15 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [estimatedValue, setEstimatedValue] = useState('');
+  const [productId, setProductId] = useState('');
+  const [products, setProducts] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      api.get('/products').then(res => setProducts(res.data.filter((p: any) => p.active))).catch(console.error);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -51,6 +59,7 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
         phone,
         status: 'NEW',
         estimatedValue: rawValue ? Number(rawValue) : 0,
+        productId: productId || undefined
       });
       onSuccess();
       onClose();
@@ -58,6 +67,7 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
       setEmail('');
       setPhone('');
       setEstimatedValue('');
+      setProductId('');
     } catch (err) {
       alert('Erro ao criar lead. Tente novamente.');
     } finally {
@@ -124,6 +134,20 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
               placeholder="US$ 5,000.00"
             />
             <span className="text-xs text-zinc-500">Limite máximo de trilhões.</span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold uppercase text-zinc-400">Produto / Serviço</label>
+            <select
+              value={productId}
+              onChange={(e) => setProductId(e.target.value)}
+              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400"
+            >
+              <option value="">(Nenhum Produto Selecionado)</option>
+              {products.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
           </div>
 
           <button

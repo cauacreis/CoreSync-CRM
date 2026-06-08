@@ -58,6 +58,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private final ObjectMapper objectMapper;
     private final InvoiceGeneratorService invoiceGeneratorService;
     private final AuditLogRepository auditLogRepository;
+    private final com.coresync.crm.repository.ProductRepository productRepository;
 
     public TelegramBotService(
             @Value("${telegram.bot.token}") String botToken,
@@ -71,7 +72,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
             DashboardService dashboardService,
             ObjectMapper objectMapper,
             InvoiceGeneratorService invoiceGeneratorService,
-            AuditLogRepository auditLogRepository) {
+            AuditLogRepository auditLogRepository,
+            com.coresync.crm.repository.ProductRepository productRepository) {
         super(botToken);
         this.botUsername = botUsername;
         this.groqClientService = groqClientService;
@@ -84,6 +86,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         this.objectMapper = objectMapper;
         this.invoiceGeneratorService = invoiceGeneratorService;
         this.auditLogRepository = auditLogRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -215,10 +218,20 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     User user = userRepository.findById(session.getUserId()).orElseThrow();
                     TenantContext.setUserEmail(user.getEmail());
 
+                    if (params.has("productName")) {
+                        String productName = params.get("productName").asText();
+                        List<com.coresync.crm.model.Product> products = productRepository.findAllByCompanyId(session.getCompanyId());
+                        products.stream()
+                                .filter(p -> p.getName().equalsIgnoreCase(productName) && p.isActive())
+                                .findFirst()
+                                .ifPresent(newLead::setProduct);
+                    }
+
                     leadService.createLead(newLead);
 
+                    String productMsg = newLead.getProduct() != null ? " (Produto: " + newLead.getProduct().getName() + ")" : "";
                     sendMessage(session.getChatId(), "🤖🪄 *Magia NLP!* Detectei os dados automaticamente:\n" +
-                                                     "✅ Lead *" + name + "* (Valor: $" + value + ") cadastrado com sucesso direto no funil!");
+                                                     "✅ Lead *" + name + "* (Valor: $" + value + ")" + productMsg + " cadastrado com sucesso direto no funil!");
                     return;
                 } catch (Exception e) {
                     log.error("Erro ao extrair entidades via Groq", e);

@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+import com.coresync.crm.model.Product;
+import com.coresync.crm.repository.ProductRepository;
+
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -22,12 +25,14 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final LeadRepository leadRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProductRepository productRepository;
 
-    public DataInitializer(CompanyRepository companyRepository, UserRepository userRepository, LeadRepository leadRepository, PasswordEncoder passwordEncoder) {
+    public DataInitializer(CompanyRepository companyRepository, UserRepository userRepository, LeadRepository leadRepository, PasswordEncoder passwordEncoder, ProductRepository productRepository) {
         this.companyRepository = companyRepository;
         this.userRepository = userRepository;
         this.leadRepository = leadRepository;
         this.passwordEncoder = passwordEncoder;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -48,6 +53,24 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
             userRepository.save(adminAlpha);
 
+            Product licencaP = Product.builder()
+                    .name("Licença Premium")
+                    .description("Software Enterprise com suporte 24/7")
+                    .price(new BigDecimal("50000.00"))
+                    .active(true)
+                    .companyId(alpha.getId())
+                    .build();
+            productRepository.save(licencaP);
+
+            Product consultoria = Product.builder()
+                    .name("Consultoria de TI")
+                    .description("Horas de consultoria arquitetural")
+                    .price(new BigDecimal("20000.00"))
+                    .active(true)
+                    .companyId(alpha.getId())
+                    .build();
+            productRepository.save(consultoria);
+
             Lead apple = Lead.builder()
                     .name("Apple Inc.")
                     .email("contact@apple.com")
@@ -55,6 +78,7 @@ public class DataInitializer implements CommandLineRunner {
                     .status(LeadStatus.NEW)
                     .estimatedValue(new BigDecimal("500000.00"))
                     .companyId(alpha.getId())
+                    .product(licencaP)
                     .build();
             leadRepository.save(apple);
 

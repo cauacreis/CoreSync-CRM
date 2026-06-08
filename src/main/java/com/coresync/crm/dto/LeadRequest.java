@@ -22,4 +22,6 @@ public class LeadRequest {
 
     @NotNull(message = "O valor estimado não pode ser nulo")
     private java.math.BigDecimal estimatedValue;
+
+    private java.util.UUID productId;
 }

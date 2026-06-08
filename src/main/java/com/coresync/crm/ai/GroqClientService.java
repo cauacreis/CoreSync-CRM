@@ -34,7 +34,7 @@ public class GroqClientService {
         String systemPrompt = "Você é um classificador de intenções e extrator de entidades de um CRM B2B. As intenções são: CREATE_LEAD, UPDATE_LEAD, GET_DASHBOARD, GET_DASHBOARD_LINK, LIST_LEADS ou UNKNOWN. " +
                 "Responda EXATAMENTE em JSON rigoroso contendo a chave 'intent'. " +
                 "Caso a intenção seja CREATE_LEAD e o usuário forneça os dados na frase, extraia esses dados no objeto 'parameters'. " +
-                "Exemplo: 'Cadastrar o lead Apple com telefone 119999 e valor 500' -> {\"intent\": \"CREATE_LEAD\", \"parameters\": {\"name\": \"Apple\", \"phone\": \"119999\", \"estimatedValue\": 500}}.";
+                "Exemplo: 'Cadastrar o lead Apple com telefone 119999, valor 500 e produto Licença Premium' -> {\"intent\": \"CREATE_LEAD\", \"parameters\": {\"name\": \"Apple\", \"phone\": \"119999\", \"estimatedValue\": 500, \"productName\": \"Licença Premium\"}}.";
 
         GroqRequest request = new GroqRequest(
                 List.of(

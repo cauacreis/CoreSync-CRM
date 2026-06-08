@@ -22,6 +22,7 @@ public class LeadController {
 
     private final LeadService leadService;
     private final GroqClientService groqClientService;
+    private final com.coresync.crm.repository.ProductRepository productRepository;
 
     @PostMapping
     public ResponseEntity<Lead> createLead(@Valid @RequestBody LeadRequest request) {
@@ -32,6 +33,14 @@ public class LeadController {
                 .status(request.getStatus())
                 .estimatedValue(request.getEstimatedValue())
                 .build();
+        
+        if (request.getProductId() != null) {
+            UUID companyId = TenantContext.getTenantId();
+            if (companyId != null) {
+                productRepository.findByIdAndCompanyId(request.getProductId(), companyId)
+                        .ifPresent(lead::setProduct);
+            }
+        }
         
         Lead createdLead = leadService.createLead(lead);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdLead);

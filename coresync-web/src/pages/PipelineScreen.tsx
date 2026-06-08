@@ -10,6 +10,10 @@ interface Lead {
   phone: string;
   status: string;
   estimatedValue: number;
+  product?: {
+    id: string;
+    name: string;
+  };
 }
 
 const STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'LOST'];
@@ -114,7 +118,14 @@ export function PipelineScreen() {
                     key={lead.id}
                     className="flex flex-col gap-2 border-4 border-zinc-100 bg-zinc-950 p-4 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
                   >
-                    <div className="font-bold text-lime-400 uppercase">{lead.name}</div>
+                    <div className="flex justify-between items-start">
+                      <div className="font-bold text-lime-400 uppercase">{lead.name}</div>
+                      {lead.product && (
+                        <span className="bg-purple-500 text-xs text-white font-bold px-2 py-1 uppercase tracking-tighter shrink-0 border-2 border-zinc-100">
+                          {lead.product.name}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-sm font-bold text-zinc-400">{lead.email}</div>
                     <div className="text-lg font-black text-white">{formatCurrency(lead.estimatedValue)}</div>
                     

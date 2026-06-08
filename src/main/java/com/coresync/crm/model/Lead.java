@@ -38,4 +38,8 @@ public class Lead {
 
     @Column(columnDefinition = "TEXT")
     private String chatHistory;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

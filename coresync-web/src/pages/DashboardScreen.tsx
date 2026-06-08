@@ -56,6 +56,12 @@ export function DashboardScreen() {
             Quadro Kanban
           </button>
           <button
+            onClick={() => navigate('/products')}
+            className="border-4 border-zinc-100 bg-purple-400 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-purple-300 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+          >
+            Catálogo de Produtos
+          </button>
+          <button
             onClick={handleLogout}
             className="border-4 border-zinc-100 bg-zinc-100 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
           >
