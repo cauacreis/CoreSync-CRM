@@ -11,6 +11,7 @@ import java.util.Map;
 public class GroqClientService {
 
     private final WebClient webClient;
+    private final WebClient audioWebClient;
     private final String model;
 
     public GroqClientService(
@@ -21,6 +22,9 @@ public class GroqClientService {
                 .baseUrl(groqApiUrl)
                 .defaultHeader("Authorization", "Bearer " + groqApiKey)
                 .defaultHeader("Content-Type", "application/json")
+                .build();
+        this.audioWebClient = WebClient.builder()
+                .defaultHeader("Authorization", "Bearer " + groqApiKey)
                 .build();
         this.model = groqApiModel;
     }
@@ -57,6 +61,37 @@ public class GroqClientService {
         }
 
         return "{\"intent\": \"UNKNOWN\"}";
+    }
+
+    public String transcribeAudio(byte[] audioBytes) {
+        org.springframework.http.client.MultipartBodyBuilder builder = new org.springframework.http.client.MultipartBodyBuilder();
+        builder.part("file", new org.springframework.core.io.ByteArrayResource(audioBytes) {
+            @Override
+            public String getFilename() {
+                return "audio.ogg";
+            }
+        });
+        builder.part("model", "whisper-large-v3");
+
+        try {
+            String responseStr = audioWebClient.post()
+                    .uri("https://api.groq.com/openai/v1/audio/transcriptions")
+                    .contentType(org.springframework.http.MediaType.MULTIPART_FORM_DATA)
+                    .body(org.springframework.web.reactive.function.BodyInserters.fromMultipartData(builder.build()))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            if (responseStr != null) {
+                com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(responseStr);
+                if (node.has("text")) {
+                    return node.get("text").asText();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao chamar Groq Whisper: " + e.getMessage());
+        }
+        return null;
     }
 
     public String cleanChatHistoryForAi(String rawHistory) {

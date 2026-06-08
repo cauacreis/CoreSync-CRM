@@ -99,9 +99,16 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 
 ## Funcionalidades Chave (Agentic CRM)
 - **Painel de Vendas (React):** Listagem de leads com filtros e indicadores visuais.
-- **Bot de IA Integrado (Telegram):** Interaja com o sistema através de linguagem natural.
-- **Zero-Click Registration (NLP V2):** Cadastre leads conversando no Telegram. A IA extrai nome, telefone e valor automaticamente.
-- **AI Sales Coach (NLP V3):** A IA (Groq Llama 3) analisa o histórico de conversas do vendedor com o Lead, pontuando o desempenho, identificando erros de negociação e sugerindo dicas de quebra de objeção diretamente no Telegram. A API opera de forma **Assíncrona**, garantindo que a thread principal não seja bloqueada, possui um mecanismo inteligente de prevenção de "flooding" para evitar chamadas duplas e limpa caracteres não processáveis antes do envio à IA.
+- **CoreSync CRM** é uma plataforma B2B moderna, projetada com a estética **Neo-Brutalista** (alto contraste, bordas grossas e cores vibrantes) e empoderada por IA.
+
+### 🔥 Features Principais
+- **Integração Bot do Telegram:** Cadastre, atualize e consulte seus leads conversando naturalmente.
+- **Voice-to-CRM via Whisper AI:** Mande um áudio no Telegram e a IA transcreve, interpreta e cadastra seu lead ou executa comandos com mágica NLP!
+- **AI Sales Coach (Groq/Llama 3):** Análises de vendas e dicas avançadas baseadas no histórico do lead.
+- **Dashboard Neo-Brutalist & Relatórios PDF:** Gráficos interativos (Recharts) e exportação de invoices com design afiado.
+- **Catálogo de Produtos:** Vincule produtos reais a cada negociação com facilidade.
+- **Multi-Tenant Seguro:** Separação rígida de dados por empresa (`TenantContext`).
+
 - **Webhook Reverso e Notificações:** Quando um lead é movido no funil web, o vendedor é notificado proativamente no Telegram.
 - **Exportable BI & Relatórios:** Resumos executivos exportáveis (PDF) gerados em memória com saúde do pipeline e auditoria das ações recentes, distribuídos no Painel Web ou via Bot.
 - **Faturamento Automatizado:** Quando uma venda é fechada (WON), o Bot envia instantaneamente um contrato em PDF limpo, gerado em memória de forma segura.

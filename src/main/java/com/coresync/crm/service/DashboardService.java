@@ -46,12 +46,30 @@ public class DashboardService {
                 .map(lead -> lead.getEstimatedValue() != null ? lead.getEstimatedValue() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        java.util.Map<String, Long> leadsByStatus = leads.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        lead -> lead.getStatus().name(),
+                        java.util.stream.Collectors.counting()
+                ));
+
+        java.util.Map<String, BigDecimal> revenueByStatus = leads.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        lead -> lead.getStatus().name(),
+                        java.util.stream.Collectors.reducing(
+                                BigDecimal.ZERO,
+                                lead -> lead.getEstimatedValue() != null ? lead.getEstimatedValue() : BigDecimal.ZERO,
+                                BigDecimal::add
+                        )
+                ));
+
         return new DashboardMetricsResponse(
                 totalLeads,
                 totalWonLeads,
                 conversionRate,
                 totalPipelineValue,
-                totalRevenueWon
+                totalRevenueWon,
+                leadsByStatus,
+                revenueByStatus
         );
     }
 }

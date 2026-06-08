@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { DashboardCharts } from '../components/DashboardCharts';
 
 interface DashboardMetrics {
   totalLeads: number;
@@ -8,6 +9,8 @@ interface DashboardMetrics {
   conversionRate: number;
   totalPipelineValue: number;
   totalRevenueWon: number;
+  leadsByStatus?: Record<string, number>;
+  revenueByStatus?: Record<string, number>;
 }
 
 export function DashboardScreen() {
@@ -98,6 +101,12 @@ export function DashboardScreen() {
           </div>
         </div>
       </div>
+
+      {/* Gráficos Interativos Neo-Brutalistas */}
+      <DashboardCharts
+        leadsByStatus={metrics.leadsByStatus}
+        revenueByStatus={metrics.revenueByStatus}
+      />
     </div>
   );
 }

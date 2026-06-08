@@ -101,12 +101,44 @@ public class TelegramBotService extends TelegramLongPollingBot {
             return;
         }
 
-        if (!update.hasMessage() || !update.getMessage().hasText()) {
+        if (!update.hasMessage()) {
             return;
         }
 
         Long chatId = update.getMessage().getChatId();
-        String text = update.getMessage().getText().trim();
+        String text = "";
+
+        if (update.getMessage().hasVoice()) {
+            try {
+                org.telegram.telegrambots.meta.api.objects.Voice voice = update.getMessage().getVoice();
+                String fileId = voice.getFileId();
+                org.telegram.telegrambots.meta.api.methods.GetFile getFile = new org.telegram.telegrambots.meta.api.methods.GetFile(fileId);
+                org.telegram.telegrambots.meta.api.objects.File file = execute(getFile);
+                
+                String fileUrl = "https://api.telegram.org/file/bot" + getBotToken() + "/" + file.getFilePath();
+                
+                sendMessage(chatId, "⏳ Processando áudio via IA Whisper...");
+                
+                byte[] audioBytes = new org.springframework.web.client.RestTemplate().getForObject(fileUrl, byte[].class);
+                
+                String transcribedText = groqClientService.transcribeAudio(audioBytes);
+                if (transcribedText == null || transcribedText.trim().isEmpty()) {
+                    sendMessage(chatId, "⚠️ Desculpe, o áudio estava inaudível ou houve um erro de transcrição. Pode repetir?");
+                    return;
+                }
+                
+                text = transcribedText;
+                sendMessage(chatId, "🎙️ Áudio compreendido: '" + text + "'. Processando comando...");
+            } catch (Exception e) {
+                log.error("Erro ao processar áudio", e);
+                sendMessage(chatId, "❌ Erro ao processar o áudio.");
+                return;
+            }
+        } else if (update.getMessage().hasText()) {
+            text = update.getMessage().getText().trim();
+        } else {
+            return;
+        }
 
         try {
             if (text.startsWith("/start")) {
