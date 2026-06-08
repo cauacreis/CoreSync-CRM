@@ -105,6 +105,7 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 - **Webhook Reverso e Notificações:** Quando um lead é movido no funil web, o vendedor é notificado proativamente no Telegram.
 - **Exportable BI & Relatórios:** Resumos executivos exportáveis (PDF) gerados em memória com saúde do pipeline e auditoria das ações recentes, distribuídos no Painel Web ou via Bot.
 - **Faturamento Automatizado:** Quando uma venda é fechada (WON), o Bot envia instantaneamente um contrato em PDF limpo, gerado em memória de forma segura.
+- **Catálogo de Produtos e Vinculação:** Gestão completa de produtos/serviços pelo Painel Web. Os leads podem ser vinculados a produtos específicos tanto na criação web quanto via bot no Telegram (com a IA extraindo o produto da fala ou no cadastro manual guiado).
 - **UX de Ouro (Inline Keyboards):** Atualize o status dos leads diretamente pelo chat usando botões de alta performance em vez de digitar comandos numéricos pesados.
 - **Isolamento de Contas (Multi-Tenant):** Uma única instância da aplicação atende Múltiplas Empresas de forma 100% segura e isolada a nível de Banco de Dados.
 

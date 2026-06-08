@@ -396,7 +396,32 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     private void doAskForNewLead(TelegramSession session) {
-        sendMessage(session.getChatId(), "Ótimo! Digite o NOME, TELEFONE, VALOR ESTIMADO e STATUS do lead separados por vírgula. (Ex: TechCorp, 11999999999, 50000, NEW)");
+        List<com.coresync.crm.model.Product> products = productRepository.findAllByCompanyId(session.getCompanyId());
+        StringBuilder productsList = new StringBuilder();
+        if (products.isEmpty()) {
+            productsList.append("Nenhum produto cadastrado.\n");
+        } else {
+            for (com.coresync.crm.model.Product p : products) {
+                if (p.isActive()) {
+                    productsList.append("🔹 *").append(p.getName()).append("*\n");
+                }
+            }
+        }
+
+        String msg = "📝 *Cadastro Manual de Lead*\n\n" +
+                     "Para cadastrar um lead de forma guiada, digite os dados separados por vírgula no seguinte formato:\n\n" +
+                     "👉 `Nome, Telefone, Valor, Status, Produto`\n\n" +
+                     "📌 *Status Disponíveis:*\n" +
+                     "🔸 *NEW* (Novo Lead)\n" +
+                     "🔸 *CONTACTED* (Contatado)\n" +
+                     "🔸 *QUALIFIED* (Qualificado)\n" +
+                     "🔸 *WON* (Venda Ganha)\n" +
+                     "🔸 *LOST* (Venda Perdida)\n\n" +
+                     "📦 *Produtos Disponíveis na Empresa:*\n" +
+                     productsList.toString() + "\n" +
+                     "💡 *Exemplo:* `Empresa Alpha, 11999999999, 15000, NEW, Licença Premium`\n\n" +
+                     "Por favor, digite os dados do lead agora:";
+        sendMessage(session.getChatId(), msg);
         session.setConversationState(ChatState.WAITING_LEAD_DATA);
         sessionRepository.save(session);
     }
@@ -405,7 +430,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             String[] parts = text.split(",");
             if (parts.length < 3) {
-                sendMessage(session.getChatId(), "Formato incorreto. Digite: Nome, Telefone, Valor, [Status]. (Ex: Empresa X, 1199999999, 10000, NEW)");
+                sendMessage(session.getChatId(), "⚠️ *Formato incorreto.*\nDigite: `Nome, Telefone, Valor, [Status], [Produto]`.\n(Ex: `Empresa X, 1199999999, 10000, NEW, Consultoria`)");
                 session.setConversationState(ChatState.IDLE);
                 sessionRepository.save(session);
                 return;
@@ -420,7 +445,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 try {
                     status = LeadStatus.valueOf(parts[3].trim().toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    sendMessage(session.getChatId(), "Status '" + parts[3].trim() + "' inválido. Usando status padrão (NEW).");
+                    sendMessage(session.getChatId(), "⚠️ Status '" + parts[3].trim() + "' inválido. Usando status padrão (*NEW*).");
                 }
             }
 
@@ -432,23 +457,36 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     .status(status)
                     .build();
 
+            if (parts.length >= 5) {
+                String productName = parts[4].trim();
+                List<com.coresync.crm.model.Product> products = productRepository.findAllByCompanyId(session.getCompanyId());
+                products.stream()
+                        .filter(p -> p.getName().equalsIgnoreCase(productName) && p.isActive())
+                        .findFirst()
+                        .ifPresent(newLead::setProduct);
+                if (newLead.getProduct() == null) {
+                    sendMessage(session.getChatId(), "⚠️ Produto '" + productName + "' não encontrado ou inativo. Lead será cadastrado sem produto.");
+                }
+            }
+
             TenantContext.setTenantId(session.getCompanyId());
             User user = userRepository.findById(session.getUserId()).orElseThrow();
             TenantContext.setUserEmail(user.getEmail());
 
             leadService.createLead(newLead);
 
-            sendMessage(session.getChatId(), "✅ Lead " + name + " cadastrado com sucesso no funil!");
+            String productMsg = newLead.getProduct() != null ? " (Produto: " + newLead.getProduct().getName() + ")" : "";
+            sendMessage(session.getChatId(), "✅ Lead *" + name + "*" + productMsg + " cadastrado com sucesso no funil!");
             
             session.setConversationState(ChatState.IDLE);
             sessionRepository.save(session);
 
         } catch (NumberFormatException e) {
-            sendMessage(session.getChatId(), "O valor do lead deve ser um número válido. Tente novamente do zero (ex: Quero criar lead).");
+            sendMessage(session.getChatId(), "⚠️ O valor do lead deve ser um número válido. Tente novamente do zero (ex: `Quero criar lead`).");
             resetSession(session.getChatId());
         } catch (Exception e) {
             log.error("Erro ao cadastrar lead", e);
-            sendMessage(session.getChatId(), "Erro ao cadastrar lead. Tente novamente do zero.");
+            sendMessage(session.getChatId(), "❌ Erro ao cadastrar lead. Tente novamente do zero.");
             resetSession(session.getChatId());
         } finally {
             TenantContext.clear();
@@ -461,7 +499,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             List<Lead> leads = leadRepository.findAllByCompanyId(session.getCompanyId());
             
             if (index < 0 || index >= leads.size()) {
-                sendMessage(session.getChatId(), "Número inválido. Digite um número da lista.");
+                sendMessage(session.getChatId(), "⚠️ Número inválido. Digite um número da lista.");
                 return;
             }
             
@@ -470,10 +508,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
             session.setConversationState(ChatState.WAITING_STATUS);
             sessionRepository.save(session);
             
-            sendMessage(session.getChatId(), "Você selecionou: " + selectedLead.getName() + ".\nPara qual estágio deseja mover? (NEW, CONTACTED, QUALIFIED, WON, LOST)");
+            sendMessage(session.getChatId(), "Você selecionou: *" + selectedLead.getName() + "*.\nPara qual estágio deseja mover? (*NEW, CONTACTED, QUALIFIED, WON, LOST*)");
             
         } catch (NumberFormatException e) {
-            sendMessage(session.getChatId(), "Por favor, digite apenas o número do lead.");
+            sendMessage(session.getChatId(), "⚠️ Por favor, digite apenas o número do lead.");
         }
     }
 
@@ -488,7 +526,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
             leadService.updateLeadStatus(session.getSelectedLeadId(), newStatus);
             
-            sendMessage(session.getChatId(), "✅ Status atualizado com sucesso para " + newStatus.name() + "!");
+            sendMessage(session.getChatId(), "✅ Status atualizado com sucesso para *" + newStatus.name() + "*!");
             
             // Resetar
             session.setConversationState(ChatState.IDLE);
@@ -496,7 +534,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sessionRepository.save(session);
 
         } catch (IllegalArgumentException e) {
-            sendMessage(session.getChatId(), "Status inválido. Escolha um destes: NEW, CONTACTED, QUALIFIED, WON, LOST.");
+            sendMessage(session.getChatId(), "⚠️ Status inválido. Escolha um destes: *NEW, CONTACTED, QUALIFIED, WON, LOST*.");
         } finally {
             TenantContext.clear();
         }
@@ -514,6 +552,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         SendMessage msg = new SendMessage();
         msg.setChatId(chatId.toString());
         msg.setText(text);
+        msg.setParseMode("Markdown");
         try {
             execute(msg);
         } catch (TelegramApiException e) {
