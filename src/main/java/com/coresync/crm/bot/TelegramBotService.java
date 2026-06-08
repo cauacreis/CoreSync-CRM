@@ -111,14 +111,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             if (text.startsWith("/start")) {
                 TelegramSession session = sessionRepository.findById(chatId).orElse(null);
-                if (session != null) {
+                if (session != null && session.getUserId() != null) {
                     sendWelcomeMessageWithInlineButtons(chatId, "👋 Bem-vindo de volta! Escolha uma opção:");
                     return;
                 }
                 sendMessage(chatId, "👋 Olá! Bem-vindo(a) ao CoreSync Assistant!\n\n" +
                                     "Para começar a usar a IA nas suas vendas, você precisa se autenticar.\n" +
                                     "Por favor, use o comando:\n" +
-                                    "`/login <seu-email> <sua-senha>`");
+                                    "`/login <seu-email>`");
                 return;
             }
             if (text.startsWith("/login")) {
@@ -131,8 +131,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
             }
 
             TelegramSession session = sessionRepository.findById(chatId).orElse(null);
-            if (session == null) {
-                sendMessage(chatId, "⚠️ Você não está autenticado. Use /login <email> <senha>");
+            
+            if (session != null && session.getConversationState() == ChatState.WAITING_PASSWORD) {
+                handleWaitingPassword(session, text);
+                return;
+            }
+
+            if (session == null || session.getUserId() == null) {
+                sendMessage(chatId, "⚠️ Você não está autenticado. Use `/login <email>`");
                 return;
             }
 
@@ -142,6 +148,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 case WAITING_LEAD_INDEX -> handleWaitingLeadIndex(session, text);
                 case WAITING_STATUS -> handleWaitingStatus(session, text);
                 case WAITING_LEAD_DATA -> handleWaitingLeadData(session, text);
+                default -> sendMessage(chatId, "Estado de conversa não reconhecido.");
             }
 
         } catch (Exception e) {
@@ -153,7 +160,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     private void handleComandos(Long chatId) {
         String msg = "🤖 *Comandos do CoreSync Bot:*\n" +
-                "/login <email> <senha> - Fazer login na conta\n" +
+                "/login <email> - Fazer login na conta\n" +
                 "/comandos - Mostrar esta lista de comandos\n\n" +
                 "💬 *Diga o que você precisa (IA):*\n" +
                 "- \"Quero cadastrar um novo lead\"\n" +
@@ -166,28 +173,55 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     private void handleLogin(Long chatId, String text) {
         String[] parts = text.split(" ");
-        if (parts.length != 3) {
-            sendMessage(chatId, "Formato inválido. Use: /login <email> <senha>");
+        
+        if (parts.length == 2) {
+            String email = parts[1];
+            TelegramSession session = sessionRepository.findById(chatId).orElse(new TelegramSession());
+            session.setChatId(chatId);
+            session.setPendingEmail(email);
+            session.setConversationState(ChatState.WAITING_PASSWORD);
+            sessionRepository.save(session);
+            sendMessage(chatId, "🔒 Digite sua senha para o e-mail `" + email + "`:");
             return;
         }
 
-        String email = parts[1];
-        String password = parts[2];
+        if (parts.length == 3) {
+            String email = parts[1];
+            String password = parts[2];
+            authenticateUser(chatId, email, password);
+            return;
+        }
 
+        sendMessage(chatId, "⚠️ Formato inválido. Use: `/login <email>`");
+    }
+
+    private void handleWaitingPassword(TelegramSession session, String text) {
+        String password = text;
+        String email = session.getPendingEmail();
+        
+        // Clear the password state
+        session.setConversationState(ChatState.IDLE);
+        session.setPendingEmail(null);
+        sessionRepository.save(session);
+        
+        authenticateUser(session.getChatId(), email, password);
+    }
+
+    private void authenticateUser(Long chatId, String email, String password) {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
-            sendMessage(chatId, "Credenciais inválidas.");
+            sendMessage(chatId, "❌ Credenciais inválidas.");
             return;
         }
 
-        TelegramSession session = TelegramSession.builder()
-                .chatId(chatId)
-                .userId(user.getId())
-                .companyId(user.getCompany().getId())
-                .conversationState(ChatState.IDLE)
-                .build();
-
+        TelegramSession session = sessionRepository.findById(chatId).orElse(new TelegramSession());
+        session.setChatId(chatId);
+        session.setUserId(user.getId());
+        session.setCompanyId(user.getCompany().getId());
+        session.setConversationState(ChatState.IDLE);
+        session.setPendingEmail(null);
         sessionRepository.save(session);
+
         sendWelcomeMessageWithInlineButtons(chatId, "✅ Login realizado com sucesso! Bem-vindo(a) ao CoreSync Bot! 🚀\n\nEscolha uma das opções no menu abaixo ou simplesmente digite o que deseja fazer:");
     }
 

@@ -29,4 +29,6 @@ public class TelegramSession {
     private ChatState conversationState;
     
     private UUID selectedLeadId;
+    
+    private String pendingEmail;
 }
