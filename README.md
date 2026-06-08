@@ -128,8 +128,10 @@ mvn spring-boot:run
 ```
 
 **3. Inicie a conversa no Telegram e faça o Account Linking:**
-Abra o chat com seu bot e digite o comando abaixo para se autenticar como o administrador da Empresa Alpha:
-`/login admin@alpha.com 123`
+Abra o chat com seu bot e digite o comando abaixo informando o e-mail do administrador (Empresa Alpha):
+`/login admin@alpha.com`
+
+O bot reconhecerá seu e-mail e solicitará sua senha (ex: `123`) em uma segunda etapa segura, prevenindo o bloqueio por esquecimento de formato. Você também pode pular a etapa digitando `/login admin@alpha.com 123` diretamente.
 
 **4. Interaja naturalmente!**
 Mande mensagens no seu formato favorito:
