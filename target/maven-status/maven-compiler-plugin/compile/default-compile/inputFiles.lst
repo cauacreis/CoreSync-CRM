@@ -1,5 +1,6 @@
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\dto\LoginResponse.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\document\InvoiceGeneratorService.java
+C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\controller\AttachmentController.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\aop\AuditAspect.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\dto\LoginRequest.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\dto\ProductRequest.java
@@ -9,6 +10,7 @@ C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\mode
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\controller\DashboardController.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\model\LeadStatus.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\repository\AuditLogRepository.java
+C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\config\WebConfig.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\controller\WebhookController.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\bot\TelegramBotService.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\CoreSyncApplication.java

@@ -5,5 +5,6 @@ public enum LeadStatus {
     CONTACTED,
     QUALIFIED,
     WON,
+    UNPAID,
     LOST
 }

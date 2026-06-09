@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
 
 interface NewLeadModalProps {
@@ -11,10 +12,12 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [description, setDescription] = useState('');
   const [estimatedValue, setEstimatedValue] = useState('');
   const [productId, setProductId] = useState('');
   const [products, setProducts] = useState<{id: string, name: string}[]>([]);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (isOpen) {
@@ -57,6 +60,7 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
         name,
         email,
         phone,
+        description,
         status: 'NEW',
         estimatedValue: rawValue ? Number(rawValue) : 0,
         productId: productId || undefined
@@ -66,6 +70,7 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
       setName('');
       setEmail('');
       setPhone('');
+      setDescription('');
       setEstimatedValue('');
       setProductId('');
     } catch (err) {
@@ -79,7 +84,7 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
       <div className="w-full max-w-md border-4 border-zinc-100 bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-black uppercase text-zinc-100">Novo Lead</h2>
+          <h2 className="text-2xl font-black uppercase text-zinc-100">{t('pipeline.new_lead')}</h2>
           <button
             onClick={onClose}
             className="text-xl font-bold text-zinc-400 transition-colors hover:text-red-400"
@@ -134,6 +139,16 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
               placeholder="US$ 5,000.00"
             />
             <span className="text-xs text-zinc-500">Limite máximo de trilhões.</span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold uppercase text-zinc-400">Descrição / Notas</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400 min-h-[80px]"
+              placeholder="Detalhes da venda, produtos específicos, histórico breve..."
+            />
           </div>
 
           <div className="flex flex-col gap-1">

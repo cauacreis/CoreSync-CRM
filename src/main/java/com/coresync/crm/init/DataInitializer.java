@@ -89,6 +89,7 @@ public class DataInitializer implements CommandLineRunner {
                     .status(LeadStatus.CONTACTED)
                     .estimatedValue(new BigDecimal("250000.00"))
                     .companyId(alpha.getId())
+                    .product(consultoria)
                     .build();
             leadRepository.save(microsoft);
 
@@ -99,8 +100,65 @@ public class DataInitializer implements CommandLineRunner {
                     .status(LeadStatus.WON)
                     .estimatedValue(new BigDecimal("1000000.00"))
                     .companyId(alpha.getId())
+                    .product(licencaP)
                     .build();
             leadRepository.save(amazon);
+
+            Lead google = Lead.builder()
+                    .name("Google Cloud")
+                    .email("gcp@google.com")
+                    .phone("11666666666")
+                    .status(LeadStatus.QUALIFIED)
+                    .estimatedValue(new BigDecimal("750000.00"))
+                    .companyId(alpha.getId())
+                    .product(licencaP)
+                    .build();
+            leadRepository.save(google);
+
+            Lead netflix = Lead.builder()
+                    .name("Netflix")
+                    .email("streaming@netflix.com")
+                    .phone("11555555555")
+                    .status(LeadStatus.LOST)
+                    .estimatedValue(new BigDecimal("100000.00"))
+                    .companyId(alpha.getId())
+                    .product(consultoria)
+                    .build();
+            leadRepository.save(netflix);
+
+            Lead meta = Lead.builder()
+                    .name("Meta Platforms")
+                    .email("zuck@meta.com")
+                    .phone("11444444444")
+                    .status(LeadStatus.WON)
+                    .estimatedValue(new BigDecimal("2000000.00"))
+                    .companyId(alpha.getId())
+                    .product(licencaP)
+                    .build();
+            leadRepository.save(meta);
+
+            Lead tesla = Lead.builder()
+                    .name("Tesla Motors")
+                    .email("elon@tesla.com")
+                    .phone("11333333333")
+                    .status(LeadStatus.UNPAID)
+                    .estimatedValue(new BigDecimal("300000.00"))
+                    .description("Venda de frota de carros elétricos Model 3 para diretoria. Em negociação final de taxas de juros.")
+                    .companyId(alpha.getId())
+                    .build();
+            leadRepository.save(tesla);
+
+            Lead spacex = Lead.builder()
+                    .name("SpaceX")
+                    .email("sales@spacex.com")
+                    .phone("11222222222")
+                    .status(LeadStatus.UNPAID)
+                    .estimatedValue(new BigDecimal("800000.00"))
+                    .description("Contrato de software para controle de peças de foguetes. Fatura emitida, aguardando compensação.")
+                    .companyId(alpha.getId())
+                    .product(licencaP)
+                    .build();
+            leadRepository.save(spacex);
 
             Company beta = Company.builder()
                     .name("Empresa Beta")

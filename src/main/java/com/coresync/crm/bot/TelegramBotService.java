@@ -59,6 +59,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private final InvoiceGeneratorService invoiceGeneratorService;
     private final AuditLogRepository auditLogRepository;
     private final com.coresync.crm.repository.ProductRepository productRepository;
+    private final com.coresync.crm.service.ProductService productService;
 
     public TelegramBotService(
             @Value("${telegram.bot.token}") String botToken,
@@ -73,7 +74,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
             ObjectMapper objectMapper,
             InvoiceGeneratorService invoiceGeneratorService,
             AuditLogRepository auditLogRepository,
-            com.coresync.crm.repository.ProductRepository productRepository) {
+            com.coresync.crm.repository.ProductRepository productRepository,
+            com.coresync.crm.service.ProductService productService) {
         super(botToken);
         this.botUsername = botUsername;
         this.groqClientService = groqClientService;
@@ -87,6 +89,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         this.invoiceGeneratorService = invoiceGeneratorService;
         this.auditLogRepository = auditLogRepository;
         this.productRepository = productRepository;
+        this.productService = productService;
     }
 
     @Override
@@ -476,16 +479,17 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
         String msg = "📝 *Cadastro Manual de Lead*\n\n" +
                      "Para cadastrar um lead de forma guiada, digite os dados separados por vírgula no seguinte formato:\n\n" +
-                     "👉 `Nome, Telefone, Valor, Status, Produto`\n\n" +
+                     "👉 `Nome, Telefone, Valor, Status, Produto, Descrição`\n\n" +
                      "📌 *Status Disponíveis:*\n" +
                      "🔸 *NEW* (Novo Lead)\n" +
                      "🔸 *CONTACTED* (Contatado)\n" +
                      "🔸 *QUALIFIED* (Qualificado)\n" +
                      "🔸 *WON* (Venda Ganha)\n" +
+                     "🔸 *UNPAID* (Não Pago)\n" +
                      "🔸 *LOST* (Venda Perdida)\n\n" +
                      "📦 *Produtos Disponíveis na Empresa:*\n" +
                      productsList.toString() + "\n" +
-                     "💡 *Exemplo:* `Empresa Alpha, 11999999999, 15000, NEW, Licença Premium`\n\n" +
+                     "💡 *Exemplo:* `Empresa Alpha, 11999999999, 15000, NEW, Licença Premium, Cliente interessado em fechar logo`\n\n" +
                      "Por favor, digite os dados do lead agora:";
         sendMessage(session.getChatId(), msg);
         session.setConversationState(ChatState.WAITING_LEAD_DATA);
@@ -496,7 +500,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         try {
             String[] parts = text.split(",");
             if (parts.length < 3) {
-                sendMessage(session.getChatId(), "⚠️ *Formato incorreto.*\nDigite: `Nome, Telefone, Valor, [Status], [Produto]`.\n(Ex: `Empresa X, 1199999999, 10000, NEW, Consultoria`)");
+                sendMessage(session.getChatId(), "⚠️ *Formato incorreto.*\nDigite: `Nome, Telefone, Valor, [Status], [Produto], [Descrição]`.\n(Ex: `Empresa X, 1199999999, 10000, NEW, Consultoria, Nota sobre o cliente`)");
                 session.setConversationState(ChatState.IDLE);
                 sessionRepository.save(session);
                 return;
@@ -533,6 +537,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 if (newLead.getProduct() == null) {
                     sendMessage(session.getChatId(), "⚠️ Produto '" + productName + "' não encontrado ou inativo. Lead será cadastrado sem produto.");
                 }
+            }
+
+            if (parts.length >= 6) {
+                newLead.setDescription(parts[5].trim());
             }
 
             TenantContext.setTenantId(session.getCompanyId());
@@ -574,7 +582,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             session.setConversationState(ChatState.WAITING_STATUS);
             sessionRepository.save(session);
             
-            sendMessage(session.getChatId(), "Você selecionou: *" + selectedLead.getName() + "*.\nPara qual estágio deseja mover? (*NEW, CONTACTED, QUALIFIED, WON, LOST*)");
+            sendMessage(session.getChatId(), "Você selecionou: *" + selectedLead.getName() + "*.\nPara qual estágio deseja mover? (*NEW, CONTACTED, QUALIFIED, WON, UNPAID, LOST*)");
             
         } catch (NumberFormatException e) {
             sendMessage(session.getChatId(), "⚠️ Por favor, digite apenas o número do lead.");
@@ -600,7 +608,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sessionRepository.save(session);
 
         } catch (IllegalArgumentException e) {
-            sendMessage(session.getChatId(), "⚠️ Status inválido. Escolha um destes: *NEW, CONTACTED, QUALIFIED, WON, LOST*.");
+            sendMessage(session.getChatId(), "⚠️ Status inválido. Escolha um destes: *NEW, CONTACTED, QUALIFIED, WON, UNPAID, LOST*.");
         } finally {
             TenantContext.clear();
         }
@@ -677,6 +685,21 @@ public class TelegramBotService extends TelegramLongPollingBot {
             } else if (data.equals("CMD_HELP")) {
                 handleComandos(session.getChatId());
                 answerCallbackQuery(callbackQuery.getId(), "Menu exibido!", false);
+            } else if (data.equals("CMD_MANAGE_PRODUCTS")) {
+                doManageProducts(session, chatId, messageId);
+                answerCallbackQuery(callbackQuery.getId(), "Carregando produtos...", false);
+            } else if (data.startsWith("TOGGLE_PRODUCT:")) {
+                String productIdStr = data.split(":")[1];
+                UUID productId = UUID.fromString(productIdStr);
+                com.coresync.crm.model.Product p = productRepository.findByIdAndCompanyId(productId, session.getCompanyId()).orElse(null);
+                if (p != null) {
+                    p.setActive(!p.isActive());
+                    productService.updateProduct(productId, p);
+                    doManageProducts(session, chatId, messageId);
+                    answerCallbackQuery(callbackQuery.getId(), "Status do produto invertido!", false);
+                } else {
+                    answerCallbackQuery(callbackQuery.getId(), "Produto não encontrado.", true);
+                }
             } else if (data.startsWith("REVIEW_LEAD:")) {
                 String leadIdStr = data.split(":")[1];
                 handleReviewLeadCallback(chatId, leadIdStr);
@@ -797,6 +820,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
         btn4.setCallbackData("CMD_HELP");
         rows.add(List.of(btn4));
         
+        InlineKeyboardButton btn5 = new InlineKeyboardButton();
+        btn5.setText("📦 Gerenciar Produtos");
+        btn5.setCallbackData("CMD_MANAGE_PRODUCTS");
+        rows.add(List.of(btn5));
+        
         markup.setKeyboard(rows);
         msg.setReplyMarkup(markup);
         
@@ -833,6 +861,55 @@ public class TelegramBotService extends TelegramLongPollingBot {
                     }
                 }
             }
+        }
+    }
+
+    private void doManageProducts(TelegramSession session, Long chatId, Integer messageId) {
+        List<com.coresync.crm.model.Product> products = productRepository.findAllByCompanyId(session.getCompanyId());
+        if (products.isEmpty()) {
+            String emptyMsg = "📦 Sua empresa ainda não possui produtos cadastrados no catálogo.";
+            if (messageId != null) {
+                editMessageText(chatId, messageId, emptyMsg);
+            } else {
+                sendMessage(chatId, emptyMsg);
+            }
+            return;
+        }
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        
+        for (com.coresync.crm.model.Product p : products) {
+            InlineKeyboardButton btn = new InlineKeyboardButton();
+            String status = p.isActive() ? "🟢 Ativo" : "🔴 Inativo";
+            btn.setText("[" + status + "] " + p.getName());
+            btn.setCallbackData("TOGGLE_PRODUCT:" + p.getId());
+            rows.add(List.of(btn));
+        }
+        
+        InlineKeyboardButton btnBack = new InlineKeyboardButton();
+        btnBack.setText("⬅️ Voltar");
+        btnBack.setCallbackData("CMD_HELP");
+        rows.add(List.of(btnBack));
+
+        markup.setKeyboard(rows);
+
+        String text = "📦 *Gerenciamento de Produtos*\n\nClique em um produto abaixo para ativar ou desativá-lo:";
+        
+        if (messageId != null) {
+            EditMessageText edit = new EditMessageText();
+            edit.setChatId(chatId.toString());
+            edit.setMessageId(messageId);
+            edit.setText(text);
+            edit.setReplyMarkup(markup);
+            edit.setParseMode("Markdown");
+            try {
+                execute(edit);
+            } catch (TelegramApiException e) {
+                log.error("Erro ao editar mensagem de produtos", e);
+            }
+        } else {
+            sendMessageWithInlineKeyboard(chatId, text, markup);
         }
     }
 }

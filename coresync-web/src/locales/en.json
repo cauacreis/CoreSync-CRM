@@ -1,0 +1,35 @@
+{
+  "pipeline": {
+    "title": "SALES PIPELINE",
+    "new_lead": "+ NEW LEAD",
+    "search_placeholder": "Search lead by name or email...",
+    "stages": {
+      "NEW": "NEW LEAD",
+      "CONTACTED": "CONTACTED",
+      "QUALIFIED": "QUALIFIED",
+      "WON": "WON",
+      "UNPAID": "UNPAID",
+      "LOST": "LOST"
+    },
+    "card": {
+      "advance": "Advance",
+      "view": "View"
+    }
+  },
+  "dashboard": {
+    "title": "DASHBOARD",
+    "total_leads": "Total Leads",
+    "won_leads": "Won Leads",
+    "conversion_rate": "Conversion Rate",
+    "pipeline_value": "Pipeline Value",
+    "revenue": "Generated Revenue",
+    "sales_funnel": "Sales Funnel",
+    "lead_status": "Leads Status"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "pipeline": "Pipeline",
+    "products": "Products",
+    "logout": "Logout"
+  }
+}

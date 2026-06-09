@@ -1,0 +1,35 @@
+{
+  "pipeline": {
+    "title": "PIPELINE DI VENDITA",
+    "new_lead": "+ NUOVO LEAD",
+    "search_placeholder": "Cerca lead per nome o email...",
+    "stages": {
+      "NEW": "NUOVO LEAD",
+      "CONTACTED": "CONTATTATO",
+      "QUALIFIED": "QUALIFICATO",
+      "WON": "VENDITA VINTA",
+      "UNPAID": "NON PAGATO",
+      "LOST": "PERSO"
+    },
+    "card": {
+      "advance": "Avanzare",
+      "view": "Vista"
+    }
+  },
+  "dashboard": {
+    "title": "CRUSCOTTO",
+    "total_leads": "Lead Totali",
+    "won_leads": "Lead Vinti",
+    "conversion_rate": "Tasso di Conversione",
+    "pipeline_value": "Valore della Pipeline",
+    "revenue": "Entrate Generate",
+    "sales_funnel": "Imbuto di Vendita",
+    "lead_status": "Stato dei Lead"
+  },
+  "nav": {
+    "dashboard": "Cruscotto",
+    "pipeline": "Pipeline",
+    "products": "Prodotti",
+    "logout": "Uscita"
+  }
+}

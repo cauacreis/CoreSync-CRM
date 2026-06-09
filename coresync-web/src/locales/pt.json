@@ -1,0 +1,35 @@
+{
+  "pipeline": {
+    "title": "PIPELINE DE VENDAS",
+    "new_lead": "+ NOVO LEAD",
+    "search_placeholder": "Pesquisar lead por nome ou email...",
+    "stages": {
+      "NEW": "NOVO LEAD",
+      "CONTACTED": "CONTATADO",
+      "QUALIFIED": "QUALIFICADO",
+      "WON": "VENDA GANHA",
+      "UNPAID": "NÃO PAGO",
+      "LOST": "PERDIDO"
+    },
+    "card": {
+      "advance": "Avançar",
+      "view": "Ver"
+    }
+  },
+  "dashboard": {
+    "title": "DASHBOARD",
+    "total_leads": "Total de Leads",
+    "won_leads": "Leads Ganho",
+    "conversion_rate": "Taxa de Conversão",
+    "pipeline_value": "Valor no Pipeline",
+    "revenue": "Receita Gerada",
+    "sales_funnel": "Funil de Vendas",
+    "lead_status": "Status dos Leads"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "pipeline": "Pipeline",
+    "products": "Produtos",
+    "logout": "Sair"
+  }
+}

@@ -32,6 +32,7 @@ public class LeadController {
                 .phone(request.getPhone())
                 .status(request.getStatus())
                 .estimatedValue(request.getEstimatedValue())
+                .description(request.getDescription())
                 .build();
         
         if (request.getProductId() != null) {

@@ -5,3 +5,14 @@
     @apply bg-zinc-950 text-zinc-100 antialiased h-screen w-screen overflow-hidden font-sans;
   }
 }
+@layer utilities {
+  .scrollbar-hide {
+    /* IE and Edge */
+    -ms-overflow-style: none;
+    /* Firefox */
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

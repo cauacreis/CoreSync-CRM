@@ -24,4 +24,6 @@ public class LeadRequest {
     private java.math.BigDecimal estimatedValue;
 
     private java.util.UUID productId;
+
+    private String description;
 }

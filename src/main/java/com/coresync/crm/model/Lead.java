@@ -42,4 +42,13 @@ public class Lead {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "lead_attachments", joinColumns = @JoinColumn(name = "lead_id"))
+    @Column(name = "file_url")
+    @Builder.Default
+    private java.util.List<String> attachments = new java.util.ArrayList<>();
 }

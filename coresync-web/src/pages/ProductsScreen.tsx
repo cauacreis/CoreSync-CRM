@@ -50,6 +50,20 @@ export function ProductsScreen() {
     }
   };
 
+  const toggleProductStatus = async (product: Product) => {
+    try {
+      await api.put(`/products/${product.id}`, {
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        active: !product.active
+      });
+      fetchProducts();
+    } catch (err) {
+      alert('Erro ao alterar status do produto');
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -83,14 +97,20 @@ export function ProductsScreen() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {products.map((p) => (
-          <div key={p.id} className="flex flex-col border-4 border-zinc-100 bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+          <div key={p.id} className={`flex flex-col border-4 transition-all duration-300 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-100 bg-zinc-900' : 'border-zinc-800 bg-zinc-950 opacity-60 grayscale'}`}>
             <h2 className="text-2xl font-black text-white">{p.name}</h2>
             <p className="mt-2 text-zinc-400">{p.description || 'Sem descrição'}</p>
-            <p className="mt-4 text-3xl font-black text-lime-400">{formatCurrency(p.price)}</p>
-            <div className="mt-4 border-t-4 border-zinc-800 pt-4 flex justify-between items-center">
-              <span className={`font-bold uppercase ${p.active ? 'text-lime-400' : 'text-red-400'}`}>
+            <p className={`mt-4 text-3xl font-black ${p.active ? 'text-lime-400' : 'text-zinc-500'}`}>{formatCurrency(p.price)}</p>
+            <div className="mt-auto border-t-4 border-zinc-800 pt-4 flex justify-between items-center mt-6">
+              <span className={`font-bold uppercase ${p.active ? 'text-lime-400' : 'text-zinc-600'}`}>
                 {p.active ? 'Ativo' : 'Inativo'}
               </span>
+              <button 
+                onClick={() => toggleProductStatus(p)}
+                className={`border-4 px-4 py-2 font-black uppercase transition-transform active:translate-x-1 active:translate-y-1 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-100 bg-zinc-100 text-zinc-950 hover:bg-zinc-200' : 'border-zinc-800 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'}`}
+              >
+                {p.active ? 'Desativar' : 'Ativar'}
+              </button>
             </div>
           </div>
         ))}
