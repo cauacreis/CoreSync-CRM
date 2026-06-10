@@ -23,7 +23,9 @@ export function SettingsScreen() {
 
   // Mocks
   const [currency, setCurrency] = useState(localStorage.getItem('@CoreSync:currency') || 'USD');
-  const [notifications, setNotifications] = useState(localStorage.getItem('@CoreSync:notifications') !== 'false');
+  const [draftNotifications, setDraftNotifications] = useState(localStorage.getItem('@CoreSync:notifications') !== 'false');
+  const [draftTheme, setDraftTheme] = useState(localStorage.getItem('@CoreSync:theme') || 'dark');
+  const [draftLanguage, setDraftLanguage] = useState(i18n.language);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleLogout = () => {
@@ -37,13 +39,23 @@ export function SettingsScreen() {
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrency(e.target.value);
-    localStorage.setItem('@CoreSync:currency', e.target.value);
   };
 
   const handleNotificationToggle = () => {
-    const newVal = !notifications;
-    setNotifications(newVal);
-    localStorage.setItem('@CoreSync:notifications', String(newVal));
+    setDraftNotifications(!draftNotifications);
+  };
+
+  const handleSave = () => {
+    const currentTheme = localStorage.getItem('@CoreSync:theme');
+    localStorage.setItem('@CoreSync:theme', draftTheme);
+    localStorage.setItem('@CoreSync:notifications', String(draftNotifications));
+    i18n.changeLanguage(draftLanguage);
+    
+    if (currentTheme !== draftTheme) {
+      window.location.reload();
+    } else {
+      alert('Preferências salvas com sucesso!');
+    }
   };
 
   return (
@@ -132,11 +144,8 @@ export function SettingsScreen() {
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Tema da Interface</label>
                   <BrutalistSelect
-                    value={localStorage.getItem('@CoreSync:theme') || 'dark'}
-                    onChange={(val) => {
-                      localStorage.setItem('@CoreSync:theme', val);
-                      window.location.reload();
-                    }}
+                    value={draftTheme}
+                    onChange={(val) => setDraftTheme(val)}
                     options={[
                       { value: 'dark', label: '🌑 Modo Escuro (Neo-Brutalismo)' },
                       { value: 'light', label: '☀️ Modo Claro (Brutalismo Puro)' },
@@ -148,8 +157,8 @@ export function SettingsScreen() {
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Idioma da Interface</label>
                   <BrutalistSelect
-                    value={i18n.language}
-                    onChange={(val) => i18n.changeLanguage(val)}
+                    value={draftLanguage}
+                    onChange={(val) => setDraftLanguage(val)}
                     options={[
                       { value: 'pt', label: '🇧🇷 Português' },
                       { value: 'en', label: '🇺🇸 English' },
@@ -163,15 +172,15 @@ export function SettingsScreen() {
                 <div className="flex items-center gap-4">
                   <div 
                     onClick={handleNotificationToggle}
-                    className={`w-16 h-8 border-4 border-zinc-950 dark:border-zinc-100 cursor-pointer transition-colors relative flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${notifications ? 'bg-lime-400' : 'bg-zinc-600'}`}
+                    className={`w-16 h-8 border-4 border-zinc-950 dark:border-zinc-100 cursor-pointer transition-colors relative flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${draftNotifications ? 'bg-lime-400' : 'bg-zinc-600'}`}
                   >
-                    <div className={`w-6 h-6 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 absolute transition-transform ${notifications ? 'translate-x-8' : 'translate-x-1'}`}></div>
+                    <div className={`w-6 h-6 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 absolute transition-transform ${draftNotifications ? 'translate-x-8' : 'translate-x-1'}`}></div>
                   </div>
                   <span className="font-bold text-zinc-950 dark:text-zinc-100 uppercase">Notificações em Tela</span>
                 </div>
               </div>
 
-              <button className="mt-4 border-4 border-lime-400 bg-lime-400 p-3 text-lg font-black uppercase text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 shadow-[4px_4px_0px_0px_rgba(163,230,53,1)] hover:bg-lime-300 w-fit">
+              <button onClick={handleSave} className="mt-4 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 p-3 text-lg font-black uppercase text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-lime-300 w-fit">
                 Salvar Preferências
               </button>
             </div>

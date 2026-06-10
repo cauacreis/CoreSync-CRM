@@ -163,18 +163,23 @@ export function PipelineScreen() {
           onWheel={handleWheel}
           className="flex h-full gap-6 overflow-x-auto scrollbar-hide pb-4 px-2"
         >
-          {STATUSES.map((status) => (
-            <div key={status} className="flex w-[320px] shrink-0 flex-col border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+          {STATUSES.map((status, index) => (
+            <div 
+              key={status} 
+              className="animate-brutal-pop flex w-[320px] shrink-0 flex-col border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <h2 className="mb-4 text-xl font-bold uppercase text-zinc-600 dark:text-zinc-400 border-b-4 border-zinc-950 dark:border-zinc-800 pb-2">
                 {t(`pipeline.stages.${status}`)}
               </h2>
               <div className="flex flex-col gap-4 overflow-y-auto pr-2">
                 {leads
                   .filter((lead) => lead.status === status)
-                  .map((lead) => (
+                  .map((lead, leadIndex) => (
                     <div
                       key={lead.id}
-                      className="flex flex-col gap-2 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                      className="animate-brutal-pop flex flex-col gap-2 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                      style={{ animationDelay: `${(index * 100) + ((leadIndex + 1) * 80)}ms` }}
                     >
                       <div className="flex justify-between items-start">
                         <div className="font-bold text-lime-600 dark:text-lime-400 uppercase">{lead.name}</div>

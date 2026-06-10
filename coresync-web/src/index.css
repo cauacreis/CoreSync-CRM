@@ -57,3 +57,14 @@
     background: transparent;
   }
 }
+
+@layer utilities {
+  @keyframes brutal-pop {
+    0% { transform: translateY(30px); opacity: 0; border-color: transparent; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  .animate-brutal-pop {
+    animation: brutal-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0;
+  }
+}
