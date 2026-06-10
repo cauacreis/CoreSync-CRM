@@ -96,8 +96,8 @@ export function ProductsScreen() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {products.map((p) => (
-          <div key={p.id} className={`flex flex-col border-4 transition-all duration-300 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900' : 'border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 opacity-60 grayscale'}`}>
+        {products.map((p, index) => (
+          <div key={p.id} className={`animate-brutal-pop flex flex-col border-4 transition-all duration-300 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900' : 'border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 opacity-60 grayscale'}`} style={{ animationDelay: `${index * 100}ms` }}>
             <h2 className="text-2xl font-black text-zinc-950 dark:text-white">{p.name}</h2>
             <p className="mt-2 text-zinc-600 dark:text-zinc-400">{p.description || 'Sem descrição'}</p>
             <p className={`mt-4 text-3xl font-black ${p.active ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-500'}`}>{formatCurrency(p.price)}</p>
