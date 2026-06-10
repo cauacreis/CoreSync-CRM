@@ -2,9 +2,16 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+:root {
+  --chart-axis: #09090b;
+}
+.dark {
+  --chart-axis: #ffffff;
+}
+
 @layer base {
   body {
-    @apply bg-zinc-50 dark:bg-zinc-950 text-zinc-950 dark:text-zinc-100 antialiased h-screen w-screen overflow-hidden font-sans transition-colors duration-300;
+    @apply bg-zinc-100 dark:bg-zinc-950 text-zinc-950 dark:text-zinc-100 antialiased h-screen w-screen overflow-hidden font-sans transition-colors duration-300;
   }
 }
 @layer utilities {

@@ -100,10 +100,10 @@ export function PipelineScreen() {
   };
 
   return (
-    <div className="flex h-full w-full flex-col p-8 overflow-hidden bg-white dark:bg-zinc-950">
+    <div className="flex h-full w-full flex-col p-8 overflow-hidden bg-zinc-100 dark:bg-zinc-950">
       {/* Alerta Brutalista */}
       {alertMsg && (
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 p-4 text-xl font-black uppercase text-zinc-950 shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] z-50">
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 p-4 text-xl font-black uppercase text-zinc-950 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] z-50">
           {alertMsg}
         </div>
       )}
@@ -120,20 +120,20 @@ export function PipelineScreen() {
           </button>
           <button
             onClick={() => navigate('/dashboard')}
-            className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 px-6 py-2 font-bold text-zinc-950 dark:text-zinc-100 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 dark:bg-zinc-800 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+            className="border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 px-6 py-2 font-bold text-zinc-950 dark:text-zinc-100 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 dark:bg-zinc-800 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
           >
             {t('nav.dashboard')}
           </button>
           <button
             onClick={() => navigate('/settings')}
-            className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-400 px-4 py-2 font-black text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-300 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+            className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-400 px-4 py-2 font-black text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
             title="Configurações"
           >
             ⚙️
           </button>
           <button
             onClick={handleLogout}
-            className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+            className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
           >
             {t('nav.logout')}
           </button>
@@ -145,14 +145,14 @@ export function PipelineScreen() {
         {/* Setas de Navegação - visíveis no hover do container */}
         <button
           onClick={scrollLeft}
-          className="absolute left-0 top-1/2 z-10 -translate-x-4 -translate-y-1/2 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 px-4 py-6 text-2xl font-black text-zinc-950 opacity-0 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all hover:bg-lime-300 active:translate-x-[-12px] active:translate-y-1 group-hover:opacity-100"
+          className="absolute left-0 top-1/2 z-10 -translate-x-4 -translate-y-1/2 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 px-4 py-6 text-2xl font-black text-zinc-950 opacity-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all hover:bg-lime-300 active:translate-x-[-12px] active:translate-y-1 group-hover:opacity-100"
         >
           {'<'}
         </button>
         
         <button
           onClick={scrollRight}
-          className="absolute right-0 top-1/2 z-10 translate-x-4 -translate-y-1/2 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 px-4 py-6 text-2xl font-black text-zinc-950 opacity-0 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all hover:bg-lime-300 active:translate-x-5 active:translate-y-1 group-hover:opacity-100"
+          className="absolute right-0 top-1/2 z-10 translate-x-4 -translate-y-1/2 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 px-4 py-6 text-2xl font-black text-zinc-950 opacity-0 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all hover:bg-lime-300 active:translate-x-5 active:translate-y-1 group-hover:opacity-100"
         >
           {'>'}
         </button>
@@ -164,7 +164,7 @@ export function PipelineScreen() {
           className="flex h-full gap-6 overflow-x-auto scrollbar-hide pb-4 px-2"
         >
           {STATUSES.map((status) => (
-            <div key={status} className="flex w-[320px] shrink-0 flex-col border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 p-4">
+            <div key={status} className="flex w-[320px] shrink-0 flex-col border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
               <h2 className="mb-4 text-xl font-bold uppercase text-zinc-600 dark:text-zinc-400 border-b-4 border-zinc-950 dark:border-zinc-800 pb-2">
                 {t(`pipeline.stages.${status}`)}
               </h2>
@@ -174,10 +174,10 @@ export function PipelineScreen() {
                   .map((lead) => (
                     <div
                       key={lead.id}
-                      className="flex flex-col gap-2 border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-950 p-4 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                      className="flex flex-col gap-2 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
                     >
                       <div className="flex justify-between items-start">
-                        <div className="font-bold text-lime-400 uppercase">{lead.name}</div>
+                        <div className="font-bold text-lime-600 dark:text-lime-400 uppercase">{lead.name}</div>
                         {lead.product && (
                           <span className="bg-purple-500 text-xs text-zinc-950 dark:text-white font-bold px-2 py-1 uppercase tracking-tighter shrink-0 border-2 border-zinc-950 dark:border-zinc-100">
                             {lead.product.name}

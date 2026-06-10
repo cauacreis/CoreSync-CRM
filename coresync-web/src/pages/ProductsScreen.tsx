@@ -82,13 +82,13 @@ export function ProductsScreen() {
         <div className="flex gap-4">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-lime-300 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+            className="border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-lime-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
           >
             Novo Produto
           </button>
           <button
             onClick={() => navigate('/dashboard')}
-            className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+            className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 px-6 py-2 font-bold text-zinc-950 transition-transform active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
           >
             Voltar
           </button>
@@ -97,17 +97,17 @@ export function ProductsScreen() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {products.map((p) => (
-          <div key={p.id} className={`flex flex-col border-4 transition-all duration-300 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900' : 'border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 opacity-60 grayscale'}`}>
+          <div key={p.id} className={`flex flex-col border-4 transition-all duration-300 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900' : 'border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 opacity-60 grayscale'}`}>
             <h2 className="text-2xl font-black text-zinc-950 dark:text-white">{p.name}</h2>
             <p className="mt-2 text-zinc-600 dark:text-zinc-400">{p.description || 'Sem descrição'}</p>
-            <p className={`mt-4 text-3xl font-black ${p.active ? 'text-lime-400' : 'text-zinc-500'}`}>{formatCurrency(p.price)}</p>
+            <p className={`mt-4 text-3xl font-black ${p.active ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-500'}`}>{formatCurrency(p.price)}</p>
             <div className="mt-auto border-t-4 border-zinc-950 dark:border-zinc-800 pt-4 flex justify-between items-center mt-6">
-              <span className={`font-bold uppercase ${p.active ? 'text-lime-400' : 'text-zinc-600'}`}>
+              <span className={`font-bold uppercase ${p.active ? 'text-lime-600 dark:text-lime-400' : 'text-zinc-600'}`}>
                 {p.active ? 'Ativo' : 'Inativo'}
               </span>
               <button 
                 onClick={() => toggleProductStatus(p)}
-                className={`border-4 px-4 py-2 font-black uppercase transition-transform active:translate-x-1 active:translate-y-1 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-950 dark:border-zinc-100 bg-zinc-100 text-zinc-950 hover:bg-zinc-200' : 'border-zinc-950 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-700 hover:text-zinc-950 dark:text-white'}`}
+                className={`border-4 px-4 py-2 font-black uppercase transition-transform active:translate-x-1 active:translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${p.active ? 'border-zinc-950 dark:border-zinc-100 bg-zinc-100 text-zinc-950 hover:bg-zinc-200' : 'border-zinc-950 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-700 hover:text-zinc-950 dark:text-white'}`}
               >
                 {p.active ? 'Desativar' : 'Ativar'}
               </button>
@@ -118,7 +118,7 @@ export function ProductsScreen() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="w-full max-w-md border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-8 shadow-[12px_12px_0px_0px_rgba(163,230,53,1)]">
+          <div className="w-full max-w-md border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-8 shadow-[12px_12px_0px_0px_rgba(163,230,53,1)]">
             <h2 className="mb-6 text-3xl font-black uppercase text-zinc-950 dark:text-white">Cadastrar Produto</h2>
             <form onSubmit={handleSave} className="flex flex-col gap-4">
               <div>

@@ -20,7 +20,7 @@ export function LoginScreen() {
 
   return (
     <div className="flex h-full w-full items-center justify-center p-4">
-      <div className="w-full max-w-md border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-8 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+      <div className="w-full max-w-md border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
         <h1 className="mb-6 text-4xl font-black uppercase tracking-tighter text-zinc-950 dark:text-zinc-100">
           CoreSync CRM
         </h1>
@@ -31,7 +31,7 @@ export function LoginScreen() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-4 border-zinc-700 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
+              className="border-4 border-zinc-700 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
               placeholder="admin@alpha.com"
               required
             />
@@ -42,7 +42,7 @@ export function LoginScreen() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="border-4 border-zinc-700 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
+              className="border-4 border-zinc-700 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
               placeholder="***"
               required
             />

@@ -50,7 +50,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col p-4 md:p-8 overflow-hidden bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex h-screen w-full flex-col p-4 md:p-8 overflow-hidden bg-zinc-100 dark:bg-zinc-950">
       
       {/* Header Neo-Brutalista */}
       <div className="mb-4 md:mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -64,7 +64,7 @@ export function SettingsScreen() {
           </button>
           <button
             onClick={handleLogout}
-            className="flex-1 md:flex-none border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-950 px-6 py-3 font-black uppercase text-zinc-950 dark:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 dark:hover:bg-zinc-900"
+            className="flex-1 md:flex-none border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 px-6 py-3 font-black uppercase text-zinc-950 dark:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 hover:bg-zinc-200 dark:hover:bg-zinc-900"
           >
             Sair
           </button>
@@ -82,32 +82,32 @@ export function SettingsScreen() {
         >
           <button 
             onClick={() => setActiveTab('profile')}
-            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'profile' ? 'bg-lime-400 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
+            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'profile' ? 'bg-lime-400 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-white dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
           >
             Perfil & Preferências
           </button>
           <button 
             onClick={() => setActiveTab('crm')}
-            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'crm' ? 'bg-lime-400 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
+            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'crm' ? 'bg-lime-400 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-white dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
           >
             Regras do CRM
           </button>
           <button 
             onClick={() => setActiveTab('integrations')}
-            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'integrations' ? 'bg-lime-400 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
+            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'integrations' ? 'bg-lime-400 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-white dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
           >
             Integrações & API
           </button>
           <button 
             onClick={() => setActiveTab('security')}
-            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'security' ? 'bg-red-500 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
+            className={`border-4 p-4 text-left font-black uppercase transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1 ${activeTab === 'security' ? 'bg-red-500 border-zinc-950 dark:border-zinc-100 text-zinc-950' : 'bg-white dark:bg-zinc-900 border-zinc-950 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-500'}`}
           >
             Segurança
           </button>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+        <div className="flex-1 overflow-y-auto border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
           
           {/* ABA: PERFIL */}
           {activeTab === 'profile' && (
@@ -117,11 +117,11 @@ export function SettingsScreen() {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Nome Completo</label>
-                  <input type="text" defaultValue="Admin User" className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 dark:focus:border-lime-400 outline-none" />
+                  <input type="text" defaultValue="Admin User" className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 dark:focus:border-lime-400 outline-none" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Cargo</label>
-                  <input type="text" defaultValue="Head of Sales" className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 dark:focus:border-lime-400 outline-none" />
+                  <input type="text" defaultValue="Head of Sales" className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 dark:focus:border-lime-400 outline-none" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">E-mail</label>
@@ -140,7 +140,7 @@ export function SettingsScreen() {
                       localStorage.setItem('@CoreSync:theme', e.target.value);
                       window.location.reload();
                     }}
-                    className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold"
+                    className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold"
                   >
                     <option value="dark">🌑 Modo Escuro (Neo-Brutalismo)</option>
                     <option value="light">☀️ Modo Claro (Brutalismo Puro)</option>
@@ -152,7 +152,7 @@ export function SettingsScreen() {
                   <select 
                     value={i18n.language} 
                     onChange={handleLanguageChange}
-                    className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold"
+                    className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold"
                   >
                     <option value="pt">🇧🇷 Português</option>
                     <option value="en">🇺🇸 English</option>
@@ -164,9 +164,9 @@ export function SettingsScreen() {
                 <div className="flex items-center gap-4">
                   <div 
                     onClick={handleNotificationToggle}
-                    className={`w-16 h-8 border-4 border-zinc-950 dark:border-zinc-100 cursor-pointer transition-colors relative flex items-center shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${notifications ? 'bg-lime-400' : 'bg-zinc-600'}`}
+                    className={`w-16 h-8 border-4 border-zinc-950 dark:border-zinc-100 cursor-pointer transition-colors relative flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${notifications ? 'bg-lime-400' : 'bg-zinc-600'}`}
                   >
-                    <div className={`w-6 h-6 border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-950 absolute transition-transform ${notifications ? 'translate-x-8' : 'translate-x-1'}`}></div>
+                    <div className={`w-6 h-6 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 absolute transition-transform ${notifications ? 'translate-x-8' : 'translate-x-1'}`}></div>
                   </div>
                   <span className="font-bold text-zinc-950 dark:text-zinc-100 uppercase">Notificações em Tela</span>
                 </div>
@@ -186,7 +186,7 @@ export function SettingsScreen() {
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">SLA de Primeiro Contato</label>
-                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
+                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
                     <option>2 Horas</option>
                     <option>4 Horas</option>
                     <option>24 Horas</option>
@@ -196,12 +196,12 @@ export function SettingsScreen() {
 
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Meta de Vendas Mensal (Receita)</label>
-                  <input type="number" defaultValue="50000" className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs font-bold" />
+                  <input type="number" defaultValue="50000" className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs font-bold" />
                 </div>
                 
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Motivos de Perda de Lead (Padrão)</label>
-                  <textarea rows={3} defaultValue="Preço Alto&#10;Perdeu para o Concorrente&#10;Falta de Funcionalidade" className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-md font-bold"></textarea>
+                  <textarea rows={3} defaultValue="Preço Alto&#10;Perdeu para o Concorrente&#10;Falta de Funcionalidade" className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-md font-bold"></textarea>
                   <span className="text-sm text-zinc-500">Um motivo por linha. Usado quando o estágio é alterado para LOST.</span>
                 </div>
               </div>
@@ -218,7 +218,7 @@ export function SettingsScreen() {
                     <span className="text-zinc-500">::</span> {stage}
                   </div>
                 ))}
-                <button className="shrink-0 border-4 border-lime-400 border-dashed bg-transparent p-3 font-black text-lime-400 uppercase hover:bg-lime-400/10 transition-colors">
+                <button className="shrink-0 border-4 border-lime-400 border-dashed bg-transparent p-3 font-black text-lime-600 dark:text-lime-400 uppercase hover:bg-lime-400/10 transition-colors">
                   + NOVO ESTÁGIO
                 </button>
               </div>
@@ -227,7 +227,7 @@ export function SettingsScreen() {
               <p className="text-zinc-600 dark:text-zinc-400 font-bold mb-2">Gerencie produtos e SKUs do seu SaaS</p>
               <button 
                 onClick={() => navigate('/products')}
-                className="border-4 border-zinc-950 dark:border-zinc-100 bg-purple-500 p-3 text-lg font-black uppercase text-zinc-950 dark:text-white transition-transform active:translate-x-1 active:translate-y-1 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-purple-400 w-fit"
+                className="border-4 border-zinc-950 dark:border-zinc-100 bg-purple-500 p-3 text-lg font-black uppercase text-zinc-950 dark:text-white transition-transform active:translate-x-1 active:translate-y-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-purple-400 w-fit"
               >
                 Abrir Catálogo de Produtos
               </button>
@@ -242,7 +242,7 @@ export function SettingsScreen() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
                 {/* Telegram */}
-                <div className="border-4 border-zinc-950 dark:border-zinc-100 bg-blue-600 p-6 shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-4">
+                <div className="border-4 border-zinc-950 dark:border-zinc-100 bg-blue-600 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-4">
                   <div className="flex justify-between items-start">
                     <h3 className="text-2xl font-black text-zinc-950 dark:text-white uppercase">Telegram Bot</h3>
                     <span className="bg-lime-400 text-zinc-950 font-black px-2 py-1 border-2 border-black text-sm">🟢 CONECTADO</span>
@@ -254,20 +254,20 @@ export function SettingsScreen() {
                 </div>
 
                 {/* Groq AI */}
-                <div className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-200 dark:bg-zinc-800 p-6 shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-4">
+                <div className="border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-200 dark:bg-zinc-800 p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] flex flex-col gap-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="text-2xl font-black text-lime-400 uppercase">Groq AI (Llama)</h3>
+                    <h3 className="text-2xl font-black text-lime-600 dark:text-lime-400 uppercase">Groq AI (Llama)</h3>
                     <span className="bg-lime-400 text-zinc-950 font-black px-2 py-1 border-2 border-black text-sm">🟢 ATIVO</span>
                   </div>
                   <p className="text-zinc-600 dark:text-zinc-400 font-bold">Modelo Atual: <span className="text-zinc-950 dark:text-white">llama3-8b-8192</span></p>
-                  <button className="mt-auto border-4 border-lime-400 bg-transparent p-2 font-black uppercase text-lime-400 hover:bg-lime-400/20 w-fit shadow-[2px_2px_0px_0px_rgba(163,230,53,1)] active:translate-x-1 active:translate-y-1">
+                  <button className="mt-auto border-4 border-lime-400 bg-transparent p-2 font-black uppercase text-lime-600 dark:text-lime-400 hover:bg-lime-400/20 w-fit shadow-[2px_2px_0px_0px_rgba(163,230,53,1)] active:translate-x-1 active:translate-y-1">
                     Ping LPU
                   </button>
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Fuso Horário</label>
-                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
+                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
                     <option>GMT-03:00 (Brasília)</option>
                     <option>GMT-04:00 (Manaus)</option>
                     <option>GMT+00:00 (UTC)</option>
@@ -276,7 +276,7 @@ export function SettingsScreen() {
 
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Formato de Data</label>
-                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
+                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
                     <option>DD/MM/YYYY (25/12/2026)</option>
                     <option>MM/DD/YYYY (12/25/2026)</option>
                     <option>YYYY-MM-DD (2026-12-25)</option>
@@ -295,13 +295,13 @@ export function SettingsScreen() {
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Nova Senha</label>
-                  <input type="password" placeholder="••••••••" className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none" />
+                  <input type="password" placeholder="••••••••" className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Confirmar Nova Senha</label>
-                  <input type="password" placeholder="••••••••" className="border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none" />
+                  <input type="password" placeholder="••••••••" className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none" />
                 </div>
-                <button className="mt-2 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 p-3 font-black uppercase text-zinc-950 hover:bg-zinc-200 w-fit shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1">
+                <button className="mt-2 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 p-3 font-black uppercase text-zinc-950 hover:bg-zinc-200 w-fit shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] active:translate-x-1 active:translate-y-1">
                   Atualizar Senha
                 </button>
               </div>
