@@ -90,7 +90,7 @@ export function DashboardScreen() {
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
         {/* Bloco 1: Pipeline */}
-        <div className="flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+        <div className="animate-brutal-pop flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]" style={{ animationDelay: '0ms' }}>
           <h2 className="text-xl font-bold uppercase text-zinc-600 dark:text-zinc-400">{t('dashboard.pipeline_value')}</h2>
           <p className="mt-4 text-4xl font-black text-lime-600 dark:text-lime-400">{formatCurrency(metrics.totalPipelineValue)}</p>
           <div className="mt-4 border-t-4 border-zinc-950 dark:border-zinc-800 pt-4 text-sm font-bold uppercase text-zinc-500">
@@ -99,7 +99,7 @@ export function DashboardScreen() {
         </div>
 
         {/* Bloco 2: Revenue Won */}
-        <div className="flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+        <div className="animate-brutal-pop flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]" style={{ animationDelay: '100ms' }}>
           <h2 className="text-xl font-bold uppercase text-zinc-600 dark:text-zinc-400">{t('dashboard.revenue')}</h2>
           <p className="mt-4 text-4xl font-black text-zinc-950 dark:text-white">{formatCurrency(metrics.totalRevenueWon)}</p>
           <div className="mt-4 border-t-4 border-zinc-950 dark:border-zinc-800 pt-4 text-sm font-bold uppercase text-zinc-500">
@@ -108,7 +108,7 @@ export function DashboardScreen() {
         </div>
 
         {/* Bloco 3: Conversion Rate */}
-        <div className="flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+        <div className="animate-brutal-pop flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]" style={{ animationDelay: '200ms' }}>
           <h2 className="text-xl font-bold uppercase text-zinc-600 dark:text-zinc-400">{t('dashboard.conversion_rate')}</h2>
           <p className="mt-4 text-4xl font-black text-lime-600 dark:text-lime-400">{metrics.conversionRate.toFixed(2)}%</p>
           <div className="mt-4 border-t-4 border-zinc-950 dark:border-zinc-800 pt-4 text-sm font-bold uppercase text-zinc-500">

@@ -64,7 +64,7 @@ export function DashboardCharts({ leadsByStatus, revenueByStatus }: DashboardCha
   return (
     <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
       {/* Gráfico de Barras: Leads por Status */}
-      <div className="flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+      <div className="animate-brutal-pop flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]" style={{ animationDelay: '300ms' }}>
         <h2 className="mb-6 text-xl font-bold uppercase text-zinc-950 dark:text-zinc-100">{t('dashboard.lead_status', 'Leads por Status')}</h2>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -79,7 +79,7 @@ export function DashboardCharts({ leadsByStatus, revenueByStatus }: DashboardCha
       </div>
 
       {/* Gráfico de Área: Receita por Status */}
-      <div className="flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+      <div className="animate-brutal-pop flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]" style={{ animationDelay: '400ms' }}>
         <h2 className="mb-6 text-xl font-bold uppercase text-zinc-950 dark:text-zinc-100">{t('dashboard.revenue', 'Receita Estimada / Status')}</h2>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
