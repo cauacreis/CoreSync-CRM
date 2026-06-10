@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LogoutModal } from '../components/LogoutModal';
+import { BrutalistSelect } from '../components/BrutalistSelect';
 
 export function SettingsScreen() {
   const navigate = useNavigate();
@@ -32,10 +33,6 @@ export function SettingsScreen() {
   const confirmLogout = () => {
     localStorage.removeItem('@CoreSync:token');
     navigate('/login');
-  };
-
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    i18n.changeLanguage(e.target.value);
   };
 
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -134,31 +131,33 @@ export function SettingsScreen() {
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Tema da Interface</label>
-                  <select 
+                  <BrutalistSelect
                     value={localStorage.getItem('@CoreSync:theme') || 'dark'}
-                    onChange={(e) => {
-                      localStorage.setItem('@CoreSync:theme', e.target.value);
+                    onChange={(val) => {
+                      localStorage.setItem('@CoreSync:theme', val);
                       window.location.reload();
                     }}
-                    className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold"
-                  >
-                    <option value="dark">🌑 Modo Escuro (Neo-Brutalismo)</option>
-                    <option value="light">☀️ Modo Claro (Brutalismo Puro)</option>
-                  </select>
+                    options={[
+                      { value: 'dark', label: '🌑 Modo Escuro (Neo-Brutalismo)' },
+                      { value: 'light', label: '☀️ Modo Claro (Brutalismo Puro)' },
+                    ]}
+                    className="max-w-xs"
+                  />
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Idioma da Interface</label>
-                  <select 
-                    value={i18n.language} 
-                    onChange={handleLanguageChange}
-                    className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold"
-                  >
-                    <option value="pt">🇧🇷 Português</option>
-                    <option value="en">🇺🇸 English</option>
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="it">🇮🇹 Italiano</option>
-                  </select>
+                  <BrutalistSelect
+                    value={i18n.language}
+                    onChange={(val) => i18n.changeLanguage(val)}
+                    options={[
+                      { value: 'pt', label: '🇧🇷 Português' },
+                      { value: 'en', label: '🇺🇸 English' },
+                      { value: 'es', label: '🇪🇸 Español' },
+                      { value: 'it', label: '🇮🇹 Italiano' },
+                    ]}
+                    className="max-w-xs"
+                  />
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -186,11 +185,16 @@ export function SettingsScreen() {
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">SLA de Primeiro Contato</label>
-                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
-                    <option>2 Horas</option>
-                    <option>4 Horas</option>
-                    <option>24 Horas</option>
-                  </select>
+                  <BrutalistSelect
+                    value="2 Horas"
+                    onChange={() => {}}
+                    options={[
+                      { value: '2 Horas', label: '2 Horas' },
+                      { value: '4 Horas', label: '4 Horas' },
+                      { value: '24 Horas', label: '24 Horas' },
+                    ]}
+                    className="max-w-xs"
+                  />
                   <span className="text-sm text-zinc-500">Tempo máximo esperado para mover um Lead de NEW para CONTACTED.</span>
                 </div>
 
@@ -267,20 +271,30 @@ export function SettingsScreen() {
 
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Fuso Horário</label>
-                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
-                    <option>GMT-03:00 (Brasília)</option>
-                    <option>GMT-04:00 (Manaus)</option>
-                    <option>GMT+00:00 (UTC)</option>
-                  </select>
+                  <BrutalistSelect
+                    value="GMT-03:00 (Brasília)"
+                    onChange={() => {}}
+                    options={[
+                      { value: 'GMT-03:00 (Brasília)', label: 'GMT-03:00 (Brasília)' },
+                      { value: 'GMT-04:00 (Manaus)', label: 'GMT-04:00 (Manaus)' },
+                      { value: 'GMT+00:00 (UTC)', label: 'GMT+00:00 (UTC)' },
+                    ]}
+                    className="max-w-xs"
+                  />
                 </div>
 
                 <div className="flex flex-col gap-2">
                   <label className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Formato de Data</label>
-                  <select className="border-4 border-zinc-950 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-950 p-3 text-zinc-950 dark:text-white focus:border-lime-400 outline-none w-full max-w-xs appearance-none font-bold">
-                    <option>DD/MM/YYYY (25/12/2026)</option>
-                    <option>MM/DD/YYYY (12/25/2026)</option>
-                    <option>YYYY-MM-DD (2026-12-25)</option>
-                  </select>
+                  <BrutalistSelect
+                    value="DD/MM/YYYY (25/12/2026)"
+                    onChange={() => {}}
+                    options={[
+                      { value: 'DD/MM/YYYY (25/12/2026)', label: 'DD/MM/YYYY (25/12/2026)' },
+                      { value: 'MM/DD/YYYY (12/25/2026)', label: 'MM/DD/YYYY (12/25/2026)' },
+                      { value: 'YYYY-MM-DD (2026-12-25)', label: 'YYYY-MM-DD (2026-12-25)' },
+                    ]}
+                    className="max-w-xs"
+                  />
                 </div>
 
               </div>
