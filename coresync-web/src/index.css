@@ -2,7 +2,7 @@
 
 @layer base {
   body {
-    @apply bg-zinc-950 text-zinc-100 antialiased h-screen w-screen overflow-hidden font-sans;
+    @apply bg-zinc-50 dark:bg-zinc-950 text-zinc-950 dark:text-zinc-100 antialiased h-screen w-screen overflow-hidden font-sans transition-colors duration-300;
   }
 }
 @layer utilities {
@@ -14,5 +14,37 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Neo-Brutalist Custom Scrollbar (Global) */
+  ::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+  }
+  ::-webkit-scrollbar-track {
+    background: theme('colors.zinc.50');
+    border-left: 4px solid theme('colors.zinc.950');
+    border-top: 4px solid theme('colors.zinc.950');
+  }
+  .dark ::-webkit-scrollbar-track {
+    background: theme('colors.zinc.900');
+    border-left: 4px solid theme('colors.zinc.100');
+    border-top: 4px solid theme('colors.zinc.100');
+  }
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.lime.400');
+    border-left: 4px solid theme('colors.zinc.950');
+    border-top: 4px solid theme('colors.zinc.950');
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: theme('colors.lime.400');
+    border-left: 4px solid theme('colors.zinc.100');
+    border-top: 4px solid theme('colors.zinc.100');
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.lime.500');
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }

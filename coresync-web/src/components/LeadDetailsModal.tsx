@@ -56,37 +56,37 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl border-4 border-zinc-100 bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-2xl border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] flex flex-col md:flex-row gap-6 max-h-[90vh] overflow-y-auto">
         
         {/* Esquerda: Detalhes do Lead */}
         <div className="flex-1 flex flex-col gap-4">
-          <div className="flex items-center justify-between border-b-4 border-zinc-800 pb-4">
+          <div className="flex items-center justify-between border-b-4 border-zinc-950 dark:border-zinc-800 pb-4">
             <h2 className="text-3xl font-black uppercase text-lime-400">{lead.name}</h2>
             <button
               onClick={onClose}
-              className="md:hidden text-2xl font-bold text-zinc-400 transition-colors hover:text-red-400"
+              className="md:hidden text-2xl font-bold text-zinc-600 dark:text-zinc-400 transition-colors hover:text-red-400"
             >
               X
             </button>
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className="font-bold text-zinc-400 uppercase">Contato</p>
-            <p className="text-xl font-bold text-white">{lead.email}</p>
+            <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Contato</p>
+            <p className="text-xl font-bold text-zinc-950 dark:text-white">{lead.email}</p>
             <p className="text-lg text-zinc-300">{lead.phone || 'Sem telefone'}</p>
           </div>
 
           <div className="flex flex-col gap-2 mt-2">
-            <p className="font-bold text-zinc-400 uppercase">Valor Estimado</p>
-            <p className="text-3xl font-black text-white">
+            <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Valor Estimado</p>
+            <p className="text-3xl font-black text-zinc-950 dark:text-white">
               {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(lead.estimatedValue)}
             </p>
           </div>
 
           {lead.product && (
              <div className="flex flex-col gap-2 mt-2">
-               <p className="font-bold text-zinc-400 uppercase">Produto</p>
-               <span className="bg-purple-500 text-sm text-white font-bold px-2 py-1 uppercase tracking-tighter self-start border-2 border-zinc-100">
+               <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Produto</p>
+               <span className="bg-purple-500 text-sm text-zinc-950 dark:text-white font-bold px-2 py-1 uppercase tracking-tighter self-start border-2 border-zinc-950 dark:border-zinc-100">
                  {lead.product.name}
                </span>
              </div>
@@ -94,7 +94,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
 
           {lead.description && (
              <div className="flex flex-col gap-2 mt-2">
-               <p className="font-bold text-zinc-400 uppercase">Descrição / Notas</p>
+               <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Descrição / Notas</p>
                <div className="text-md text-zinc-300 italic border-l-4 border-zinc-700 pl-4">
                  {lead.description}
                </div>
@@ -103,12 +103,12 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         </div>
 
         {/* Direita: Cofre de Arquivos */}
-        <div className="flex-1 flex flex-col gap-4 border-t-4 border-zinc-800 md:border-t-0 md:border-l-4 md:pl-6 pt-6 md:pt-0">
+        <div className="flex-1 flex flex-col gap-4 border-t-4 border-zinc-950 dark:border-zinc-800 md:border-t-0 md:border-l-4 md:pl-6 pt-6 md:pt-0">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-black uppercase text-zinc-100">Cofre de Arquivos</h3>
+            <h3 className="text-xl font-black uppercase text-zinc-950 dark:text-zinc-100">Cofre de Arquivos</h3>
             <button
               onClick={onClose}
-              className="hidden md:block text-2xl font-bold text-zinc-400 transition-colors hover:text-red-400"
+              className="hidden md:block text-2xl font-bold text-zinc-600 dark:text-zinc-400 transition-colors hover:text-red-400"
             >
               X
             </button>
@@ -117,7 +117,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
           {/* Área de Dropzone Neo-Brutalista */}
           <div 
             {...getRootProps()} 
-            className={`border-4 border-dashed p-8 text-center cursor-pointer transition-all ${isDragActive ? 'border-lime-400 bg-lime-400/20' : 'border-zinc-600 bg-zinc-950 hover:border-zinc-400'}`}
+            className={`border-4 border-dashed p-8 text-center cursor-pointer transition-all ${isDragActive ? 'border-lime-400 bg-lime-400/20' : 'border-zinc-600 bg-white dark:bg-zinc-950 hover:border-zinc-400'}`}
           >
             <input {...getInputProps()} />
             {uploading ? (
@@ -125,7 +125,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
             ) : isDragActive ? (
               <p className="font-bold text-lime-400 uppercase">Solte os arquivos aqui...</p>
             ) : (
-              <p className="font-bold text-zinc-400 uppercase">Arraste arquivos ou clique para selecionar</p>
+              <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Arraste arquivos ou clique para selecionar</p>
             )}
           </div>
 
@@ -140,7 +140,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
                     href={url} 
                     target="_blank" 
                     rel="noreferrer"
-                    className="flex items-center justify-between border-4 border-zinc-800 bg-zinc-950 p-3 hover:bg-zinc-800 transition-colors group"
+                    className="flex items-center justify-between border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-3 hover:bg-zinc-200 dark:bg-zinc-800 transition-colors group"
                   >
                     <span className="font-bold text-zinc-300 truncate max-w-[80%]">{filename}</span>
                     <span className="text-lime-400 font-black opacity-0 group-hover:opacity-100 transition-opacity">ABRIR</span>

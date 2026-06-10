@@ -82,12 +82,12 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md border-4 border-zinc-100 bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+      <div className="w-full max-w-md border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-black uppercase text-zinc-100">{t('pipeline.new_lead')}</h2>
+          <h2 className="text-2xl font-black uppercase text-zinc-950 dark:text-zinc-100">{t('pipeline.new_lead')}</h2>
           <button
             onClick={onClose}
-            className="text-xl font-bold text-zinc-400 transition-colors hover:text-red-400"
+            className="text-xl font-bold text-zinc-600 dark:text-zinc-400 transition-colors hover:text-red-400"
           >
             X
           </button>
@@ -95,68 +95,68 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-bold uppercase text-zinc-400">Nome da Empresa / Contato</label>
+            <label className="text-sm font-bold uppercase text-zinc-600 dark:text-zinc-400">Nome da Empresa / Contato</label>
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400"
+              className="border-2 border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
               placeholder="Ex: Acme Corp"
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-bold uppercase text-zinc-400">E-mail</label>
+            <label className="text-sm font-bold uppercase text-zinc-600 dark:text-zinc-400">E-mail</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400"
+              className="border-2 border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
               placeholder="contato@acme.com"
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-bold uppercase text-zinc-400">Telefone</label>
+            <label className="text-sm font-bold uppercase text-zinc-600 dark:text-zinc-400">Telefone</label>
             <input
               type="text"
               value={phone}
               onChange={handlePhoneChange}
-              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400"
+              className="border-2 border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
               placeholder="(11) 99999-9999"
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-bold uppercase text-zinc-400">Valor Estimado (US$)</label>
+            <label className="text-sm font-bold uppercase text-zinc-600 dark:text-zinc-400">Valor Estimado (US$)</label>
             <input
               type="text"
               value={estimatedValue}
               onChange={handleCurrencyChange}
-              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400"
+              className="border-2 border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
               placeholder="US$ 5,000.00"
             />
             <span className="text-xs text-zinc-500">Limite máximo de trilhões.</span>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-bold uppercase text-zinc-400">Descrição / Notas</label>
+            <label className="text-sm font-bold uppercase text-zinc-600 dark:text-zinc-400">Descrição / Notas</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400 min-h-[80px]"
+              className="border-2 border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400 min-h-[80px]"
               placeholder="Detalhes da venda, produtos específicos, histórico breve..."
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-bold uppercase text-zinc-400">Produto / Serviço</label>
+            <label className="text-sm font-bold uppercase text-zinc-600 dark:text-zinc-400">Produto / Serviço</label>
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
-              className="border-2 border-zinc-700 bg-zinc-950 p-2 text-zinc-100 outline-none transition-colors focus:border-lime-400"
+              className="border-2 border-zinc-700 bg-white dark:bg-zinc-950 p-2 text-zinc-950 dark:text-zinc-100 outline-none transition-colors focus:border-lime-400"
             >
               <option value="">(Nenhum Produto Selecionado)</option>
               {products.map(p => (

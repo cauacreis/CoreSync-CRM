@@ -20,11 +20,11 @@ export function DashboardCharts({ leadsByStatus, revenueByStatus }: DashboardCha
 
   if (!leadsByStatus || !revenueByStatus || Object.keys(leadsByStatus).length === 0) {
     return (
-      <div className="mt-8 border-4 border-zinc-100 bg-zinc-900 p-8 text-center shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+      <div className="mt-8 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-8 text-center shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
         <h2 className="text-2xl font-black uppercase tracking-tighter text-lime-400">
           {t('dashboard.no_data', 'Ainda não há dados para os gráficos')}
         </h2>
-        <p className="mt-2 font-bold text-zinc-400">
+        <p className="mt-2 font-bold text-zinc-600 dark:text-zinc-400">
           {t('dashboard.add_leads_to_view', 'Adicione leads ao funil para visualizar os relatórios neo-brutalistas.')}
         </p>
       </div>
@@ -64,8 +64,8 @@ export function DashboardCharts({ leadsByStatus, revenueByStatus }: DashboardCha
   return (
     <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
       {/* Gráfico de Barras: Leads por Status */}
-      <div className="flex flex-col border-4 border-zinc-100 bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-        <h2 className="mb-6 text-xl font-bold uppercase text-zinc-100">{t('dashboard.lead_status', 'Leads por Status')}</h2>
+      <div className="flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+        <h2 className="mb-6 text-xl font-bold uppercase text-zinc-950 dark:text-zinc-100">{t('dashboard.lead_status', 'Leads por Status')}</h2>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={leadsData}>
@@ -79,8 +79,8 @@ export function DashboardCharts({ leadsByStatus, revenueByStatus }: DashboardCha
       </div>
 
       {/* Gráfico de Área: Receita por Status */}
-      <div className="flex flex-col border-4 border-zinc-100 bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-        <h2 className="mb-6 text-xl font-bold uppercase text-zinc-100">{t('dashboard.revenue', 'Receita Estimada / Status')}</h2>
+      <div className="flex flex-col border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-50 dark:bg-zinc-900 p-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+        <h2 className="mb-6 text-xl font-bold uppercase text-zinc-950 dark:text-zinc-100">{t('dashboard.revenue', 'Receita Estimada / Status')}</h2>
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={revenueData}>
