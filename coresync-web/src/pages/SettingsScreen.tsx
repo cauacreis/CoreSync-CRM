@@ -26,6 +26,7 @@ export function SettingsScreen() {
 
   // Mocks
   const [draftNotifications, setDraftNotifications] = useState(localStorage.getItem('@CoreSync:notifications') !== 'false');
+  const [draftSound, setDraftSound] = useState(localStorage.getItem('@CoreSync:sound') !== 'false');
   const [draftTheme, setDraftTheme] = useState(localStorage.getItem('@CoreSync:theme') || 'dark');
   const [draftLanguage, setDraftLanguage] = useState(i18n.language);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -45,10 +46,15 @@ export function SettingsScreen() {
     setDraftNotifications(!draftNotifications);
   };
 
+  const handleSoundToggle = () => {
+    setDraftSound(!draftSound);
+  };
+
   const handleSave = () => {
     const currentTheme = localStorage.getItem('@CoreSync:theme');
     localStorage.setItem('@CoreSync:theme', draftTheme);
     localStorage.setItem('@CoreSync:notifications', String(draftNotifications));
+    localStorage.setItem('@CoreSync:sound', String(draftSound));
     i18n.changeLanguage(draftLanguage);
     
     if (currentTheme !== draftTheme) {
@@ -177,6 +183,16 @@ export function SettingsScreen() {
                     <div className={`w-6 h-6 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 absolute transition-transform ${draftNotifications ? 'translate-x-8' : 'translate-x-1'}`}></div>
                   </div>
                   <span className="font-bold text-zinc-950 dark:text-zinc-100 uppercase">Notificações em Tela</span>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div 
+                    onClick={handleSoundToggle}
+                    className={`w-16 h-8 border-4 border-zinc-950 dark:border-zinc-100 cursor-pointer transition-colors relative flex items-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] ${draftSound ? 'bg-lime-400' : 'bg-zinc-600'}`}
+                  >
+                    <div className={`w-6 h-6 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 absolute transition-transform ${draftSound ? 'translate-x-8' : 'translate-x-1'}`}></div>
+                  </div>
+                  <span className="font-bold text-zinc-950 dark:text-zinc-100 uppercase">Efeitos Sonoros</span>
                 </div>
               </div>
 

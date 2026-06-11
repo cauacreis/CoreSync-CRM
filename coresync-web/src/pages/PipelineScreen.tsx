@@ -11,6 +11,7 @@ import { KanbanColumn } from '../components/KanbanColumn';
 import { KanbanCard } from '../components/KanbanCard';
 import type { Lead } from '../components/KanbanCard';
 import { useToast } from '../contexts/ToastContext';
+import { playDropSound } from '../utils/audio';
 
 const STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'UNPAID', 'LOST'];
 
@@ -101,6 +102,7 @@ export function PipelineScreen() {
 
     const lead = leads.find((l) => l.id === leadId);
     if (lead && lead.status !== newStatus) {
+      playDropSound();
       handleUpdateStatus(leadId, newStatus);
     }
   };
