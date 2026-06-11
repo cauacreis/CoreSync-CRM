@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import type { RefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LogoutModal } from '../components/LogoutModal';
@@ -13,7 +14,7 @@ export function SettingsScreen() {
   const sidebarScrollRef = useRef<HTMLDivElement>(null);
   const pipelineTagsScrollRef = useRef<HTMLDivElement>(null);
 
-  const handleWheel = (e: React.WheelEvent, ref: React.RefObject<HTMLDivElement>, forceHorizontal = false) => {
+  const handleWheel = (e: React.WheelEvent, ref: RefObject<HTMLDivElement | null>, forceHorizontal = false) => {
     if (e.deltaY !== 0 && ref.current) {
       // Se for desktop e for a sidebar (que é vertical no md:), não converte scroll
       const isMobile = window.innerWidth < 768;
@@ -24,7 +25,6 @@ export function SettingsScreen() {
   };
 
   // Mocks
-  const [currency, setCurrency] = useState(localStorage.getItem('@CoreSync:currency') || 'USD');
   const [draftNotifications, setDraftNotifications] = useState(localStorage.getItem('@CoreSync:notifications') !== 'false');
   const [draftTheme, setDraftTheme] = useState(localStorage.getItem('@CoreSync:theme') || 'dark');
   const [draftLanguage, setDraftLanguage] = useState(i18n.language);
@@ -39,9 +39,7 @@ export function SettingsScreen() {
     navigate('/login');
   };
 
-  const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCurrency(e.target.value);
-  };
+
 
   const handleNotificationToggle = () => {
     setDraftNotifications(!draftNotifications);

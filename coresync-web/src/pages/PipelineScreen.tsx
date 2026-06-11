@@ -1,36 +1,37 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
+import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
 import { api } from '../services/api';
 import { NewLeadModal } from '../components/NewLeadModal';
 import { LeadDetailsModal } from '../components/LeadDetailsModal';
 import { LogoutModal } from '../components/LogoutModal';
-
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  status: string;
-  estimatedValue: number;
-  description?: string;
-  product?: {
-    id: string;
-    name: string;
-  };
-}
+import { KanbanColumn } from '../components/KanbanColumn';
+import { KanbanCard } from '../components/KanbanCard';
+import type { Lead } from '../components/KanbanCard';
+import { useToast } from '../contexts/ToastContext';
 
 const STATUSES = ['NEW', 'CONTACTED', 'QUALIFIED', 'WON', 'UNPAID', 'LOST'];
 
 export function PipelineScreen() {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [alertMsg, setAlertMsg] = useState<string | null>(null);
+  const { showToast } = useToast();
   const [isNewLeadModalOpen, setIsNewLeadModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [activeLead, setActiveLead] = useState<Lead | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    })
+  );
 
   useEffect(() => {
     fetchLeads();
@@ -54,15 +55,30 @@ export function PipelineScreen() {
           lead.id === id ? { ...lead, status: newStatus } : lead
         )
       );
-      showAlert(`Lead movido para ${newStatus}!`);
+      showToast(`Lead movido para ${newStatus}!`, 'success');
     } catch (err) {
-      showAlert('Falha ao atualizar status.');
+      showToast('Falha ao atualizar status.', 'error');
     }
   };
 
-  const showAlert = (msg: string) => {
-    setAlertMsg(msg);
-    setTimeout(() => setAlertMsg(null), 3000);
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    setActiveLead(active.data.current?.lead as Lead);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveLead(null);
+
+    if (!over) return;
+
+    const leadId = active.id as string;
+    const newStatus = over.id as string;
+
+    const lead = leads.find((l) => l.id === leadId);
+    if (lead && lead.status !== newStatus) {
+      handleUpdateStatus(leadId, newStatus);
+    }
   };
 
   const handleLogout = () => {
@@ -74,12 +90,7 @@ export function PipelineScreen() {
     navigate('/login');
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(value || 0);
-  };
+
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -101,12 +112,6 @@ export function PipelineScreen() {
 
   return (
     <div className="flex h-full w-full flex-col p-8 overflow-hidden bg-zinc-100 dark:bg-zinc-950">
-      {/* Alerta Brutalista */}
-      {alertMsg && (
-        <div className="absolute top-8 left-1/2 -translate-x-1/2 border-4 border-zinc-950 dark:border-zinc-100 bg-lime-400 p-4 text-xl font-black uppercase text-zinc-950 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)] z-50">
-          {alertMsg}
-        </div>
-      )}
 
       {/* Header */}
       <div className="mb-8 flex items-center justify-between shrink-0 flex-wrap gap-4">
@@ -158,78 +163,44 @@ export function PipelineScreen() {
         </button>
 
         {/* Scroll Container Ocultando a Barra de Rolagem Nativamente */}
-        <div 
-          ref={scrollContainerRef}
-          onWheel={handleWheel}
-          className="flex h-full gap-6 overflow-x-auto scrollbar-hide pb-4 px-2"
-        >
-          {STATUSES.map((status, index) => (
-            <div 
-              key={status} 
-              className="animate-brutal-pop flex w-[320px] shrink-0 flex-col border-4 border-zinc-950 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <h2 className="mb-4 text-xl font-bold uppercase text-zinc-600 dark:text-zinc-400 border-b-4 border-zinc-950 dark:border-zinc-800 pb-2">
-                {t(`pipeline.stages.${status}`)}
-              </h2>
-              <div className="flex flex-col gap-4 overflow-y-auto pr-2">
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <div 
+            ref={scrollContainerRef}
+            onWheel={handleWheel}
+            className="flex h-full gap-6 overflow-x-auto scrollbar-hide pb-4 px-2 pt-4"
+          >
+            {STATUSES.map((status, index) => (
+              <KanbanColumn key={status} status={status} index={index}>
                 {leads
                   .filter((lead) => lead.status === status)
                   .map((lead, leadIndex) => (
-                    <div
+                    <KanbanCard
                       key={lead.id}
-                      className="animate-brutal-pop flex flex-col gap-2 border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
-                      style={{ animationDelay: `${(index * 100) + ((leadIndex + 1) * 80)}ms` }}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="font-bold text-lime-600 dark:text-lime-400 uppercase">{lead.name}</div>
-                        {lead.product && (
-                          <span className="bg-purple-500 text-xs text-zinc-950 dark:text-white font-bold px-2 py-1 uppercase tracking-tighter shrink-0 border-2 border-zinc-950 dark:border-zinc-100">
-                            {lead.product.name}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm font-bold text-zinc-600 dark:text-zinc-400">{lead.email}</div>
-                      
-                      {lead.description && (
-                        <div className="mt-1 text-sm text-zinc-500 italic line-clamp-3 leading-tight border-l-2 border-zinc-700 pl-2">
-                          "{lead.description}"
-                        </div>
-                      )}
-                      
-                      <div className="text-lg font-black text-zinc-950 dark:text-white mt-1">{formatCurrency(lead.estimatedValue)}</div>
-                      
-                      {/* Controles do Card */}
-                      <div className="mt-2 flex gap-2 border-t-4 border-zinc-950 dark:border-zinc-800 pt-3">
-                        <button
-                          onClick={() => setSelectedLead(lead)}
-                          className="flex-1 bg-blue-400 px-2 py-1 text-sm font-black uppercase text-zinc-950 transition-colors hover:bg-blue-300"
-                        >
-                          {t('pipeline.card.view', 'Ver')}
-                        </button>
-                        {status !== 'LOST' && (
-                          <button
-                            onClick={() => handleUpdateStatus(lead.id, STATUSES[STATUSES.indexOf(status) + 1])}
-                            className="flex-1 bg-lime-400 px-2 py-1 text-sm font-black uppercase text-zinc-950 transition-colors hover:bg-lime-300"
-                          >
-                            {t('pipeline.card.advance', 'Avançar')}
-                          </button>
-                        )}
-                        {status !== 'LOST' && (
-                          <button
-                            onClick={() => handleUpdateStatus(lead.id, 'LOST')}
-                            className="flex-1 bg-zinc-700 px-2 py-1 text-sm font-black uppercase text-zinc-950 dark:text-zinc-100 transition-colors hover:bg-zinc-600"
-                          >
-                            Recusar
-                          </button>
-                        )}
-                      </div>
-                    </div>
+                      lead={lead}
+                      index={leadIndex}
+                      onView={setSelectedLead}
+                      onAdvance={(id) => handleUpdateStatus(id, STATUSES[STATUSES.indexOf(status) + 1])}
+                      onDecline={(id) => handleUpdateStatus(id, 'LOST')}
+                      isNextStatusAvailable={status !== 'LOST' && STATUSES.indexOf(status) < STATUSES.length - 1}
+                    />
                   ))}
-              </div>
-            </div>
-          ))}
-        </div>
+              </KanbanColumn>
+            ))}
+          </div>
+
+          <DragOverlay>
+            {activeLead ? (
+              <KanbanCard
+                lead={activeLead}
+                index={0}
+                onView={() => {}}
+                onAdvance={() => {}}
+                onDecline={() => {}}
+                isNextStatusAvailable={false}
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       </div>
 
       <NewLeadModal
