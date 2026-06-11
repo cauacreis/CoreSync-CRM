@@ -18,6 +18,7 @@ public class LeadService {
 
     private final LeadRepository leadRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final LeadSmartTagWorker smartTagWorker;
 
     @com.coresync.crm.aop.Auditable(action = "LEAD_CREATED")
     public Lead createLead(Lead lead) {
@@ -27,7 +28,10 @@ public class LeadService {
         }
         
         lead.setCompanyId(companyId);
-        return leadRepository.save(lead);
+        Lead savedLead = leadRepository.save(lead);
+        
+        smartTagWorker.processSmartTagsAsync(savedLead);
+        return savedLead;
     }
 
     public List<Lead> getLeads() {

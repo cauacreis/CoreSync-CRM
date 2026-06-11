@@ -26,4 +26,6 @@ public class LeadRequest {
     private java.util.UUID productId;
 
     private String description;
+    
+    private java.util.List<String> smartTags;
 }

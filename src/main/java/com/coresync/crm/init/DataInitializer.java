@@ -79,6 +79,8 @@ public class DataInitializer implements CommandLineRunner {
                     .estimatedValue(new BigDecimal("500000.00"))
                     .companyId(alpha.getId())
                     .product(licencaP)
+                    .description("Cliente gigantesco. Quer fechar até o final do ano fiscal. Pediu desconto para pagamento à vista. Super urgente.")
+                    .smartTags(java.util.List.of("🔥 Urgente", "💰 Pede Desconto"))
                     .build();
             leadRepository.save(apple);
 
@@ -90,6 +92,8 @@ public class DataInitializer implements CommandLineRunner {
                     .estimatedValue(new BigDecimal("250000.00"))
                     .companyId(alpha.getId())
                     .product(consultoria)
+                    .description("Negociação fria no momento, estão avaliando concorrentes locais. Possível churn antes de fechar.")
+                    .smartTags(java.util.List.of("🥶 Frio", "👀 Avaliando Concorrentes"))
                     .build();
             leadRepository.save(microsoft);
 

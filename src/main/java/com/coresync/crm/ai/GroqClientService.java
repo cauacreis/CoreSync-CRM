@@ -63,6 +63,42 @@ public class GroqClientService {
         return "{\"intent\": \"UNKNOWN\"}";
     }
 
+    public List<String> generateSmartTags(String description) {
+        if (description == null || description.length() < 10) {
+            return java.util.Collections.emptyList();
+        }
+
+        String systemPrompt = "Você é um assistente de CRM B2B. Leia a descrição da negociação e gere no máximo 2 tags ultra-curtas (máximo 3 palavras cada) resumindo o status, urgência ou contexto. Inclua um emoji em cada tag. Responda estritamente em um JSON Array de strings, sem markdown extra. Exemplo: [\"🔥 Urgente\", \"💰 Pede Desconto\"].";
+
+        GroqRequest request = new GroqRequest(
+                List.of(
+                        new Message("system", systemPrompt),
+                        new Message("user", description)
+                ),
+                this.model,
+                0.2,
+                null
+        );
+
+        try {
+            GroqResponse response = webClient.post()
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(GroqResponse.class)
+                    .block();
+
+            if (response != null && response.choices() != null && !response.choices().isEmpty()) {
+                String content = response.choices().get(0).message().content();
+                content = content.replace("```json", "").replace("```", "").trim();
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                return mapper.readValue(content, new com.fasterxml.jackson.core.type.TypeReference<List<String>>(){});
+            }
+        } catch (Exception e) {
+            // Silently ignore AI or JSON parse errors
+        }
+        return java.util.Collections.emptyList();
+    }
+
     public String transcribeAudio(byte[] audioBytes) {
         org.springframework.http.client.MultipartBodyBuilder builder = new org.springframework.http.client.MultipartBodyBuilder();
         builder.part("file", new org.springframework.core.io.ByteArrayResource(audioBytes) {

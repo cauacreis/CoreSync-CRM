@@ -14,6 +14,7 @@ export interface Lead {
     id: string;
     name: string;
   };
+  smartTags?: string[];
 }
 
 interface KanbanCardProps {
@@ -81,6 +82,20 @@ export const KanbanCard = memo(({ lead, index, onView, onAdvance, onDecline, isN
       {lead.description && (
         <div className="mt-1 text-sm text-zinc-500 italic line-clamp-3 leading-tight border-l-2 border-zinc-700 pl-2 pointer-events-none">
           "{lead.description}"
+        </div>
+      )}
+      
+      {lead.smartTags && lead.smartTags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2 pointer-events-none">
+          {lead.smartTags.map((tag, idx) => {
+            const colors = ['bg-cyan-400', 'bg-fuchsia-400', 'bg-yellow-400'];
+            const colorClass = colors[idx % colors.length];
+            return (
+              <span key={idx} className={`${colorClass} text-black font-bold text-xs px-2 py-1 border-2 border-black shadow-[2px_2px_0px_black]`}>
+                {tag}
+              </span>
+            );
+          })}
         </div>
       )}
       

@@ -51,4 +51,10 @@ public class Lead {
     @Column(name = "file_url")
     @Builder.Default
     private java.util.List<String> attachments = new java.util.ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "lead_smart_tags", joinColumns = @JoinColumn(name = "lead_id"))
+    @Column(name = "tag")
+    @Builder.Default
+    private java.util.List<String> smartTags = new java.util.ArrayList<>();
 }

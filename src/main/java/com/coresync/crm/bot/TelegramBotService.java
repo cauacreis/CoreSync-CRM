@@ -348,8 +348,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
             for (Lead l : leads) {
                 sb.append("👤 ").append(l.getName())
                   .append(" | 📞 ").append(l.getPhone() != null ? l.getPhone() : "N/A")
-                  .append(" | 🏷️ ").append(l.getStatus())
-                  .append("\n");
+                  .append(" | 📊 ").append(l.getStatus());
+                
+                if (l.getSmartTags() != null && !l.getSmartTags().isEmpty()) {
+                    sb.append("\n   🏷️ Tags: ");
+                    for (String tag : l.getSmartTags()) {
+                        sb.append("*[").append(tag).append("]* ");
+                    }
+                }
+                sb.append("\n");
             }
             sendMessage(session.getChatId(), sb.toString());
             
@@ -671,7 +678,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 leadService.updateLeadStatus(leadId, newStatus);
                 
                 Lead lead = leadRepository.findByIdAndCompanyId(leadId, session.getCompanyId()).orElseThrow();
-                editMessageText(chatId, messageId, "✅ Status do lead *" + lead.getName() + "* atualizado para *" + newStatus.name() + "*!");
+                StringBuilder msg = new StringBuilder("✅ Status do lead *" + lead.getName() + "* atualizado para *" + newStatus.name() + "*!");
+                if (lead.getSmartTags() != null && !lead.getSmartTags().isEmpty()) {
+                    msg.append("\n🏷️ Tags: ");
+                    for (String tag : lead.getSmartTags()) {
+                        msg.append("*[").append(tag).append("]* ");
+                    }
+                }
+                editMessageText(chatId, messageId, msg.toString());
                 answerCallbackQuery(callbackQuery.getId(), "Status atualizado!", false);
             } else if (data.equals("CMD_LIST_LEADS")) {
                 doListLeads(session);
