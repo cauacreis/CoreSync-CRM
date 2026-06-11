@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LogoutModal } from '../components/LogoutModal';
 import { BrutalistSelect } from '../components/BrutalistSelect';
+import { useToast } from '../contexts/ToastContext';
 
 export function SettingsScreen() {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('profile');
   const sidebarScrollRef = useRef<HTMLDivElement>(null);
   const pipelineTagsScrollRef = useRef<HTMLDivElement>(null);
@@ -54,7 +56,7 @@ export function SettingsScreen() {
     if (currentTheme !== draftTheme) {
       window.location.reload();
     } else {
-      alert('Preferências salvas com sucesso!');
+      showToast('Preferências salvas com sucesso!', 'success');
     }
   };
 

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 export function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -14,7 +16,7 @@ export function LoginScreen() {
       localStorage.setItem('@CoreSync:token', response.data.token);
       navigate('/dashboard');
     } catch (err) {
-      alert('Falha no login. Verifique as credenciais.');
+      showToast('Falha no login. Verifique as credenciais.', 'error');
     }
   };
 

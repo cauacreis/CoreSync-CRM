@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 interface NewLeadModalProps {
   isOpen: boolean;
@@ -9,6 +10,7 @@ interface NewLeadModalProps {
 }
 
 export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) {
+  const { showToast } = useToast();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -65,6 +67,7 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
         estimatedValue: rawValue ? Number(rawValue) : 0,
         productId: productId || undefined
       });
+      showToast('Lead criado com sucesso!', 'success');
       onSuccess();
       onClose();
       setName('');
@@ -74,7 +77,7 @@ export function NewLeadModal({ isOpen, onClose, onSuccess }: NewLeadModalProps) 
       setEstimatedValue('');
       setProductId('');
     } catch (err) {
-      alert('Erro ao criar lead. Tente novamente.');
+      showToast('Erro ao criar lead. Tente novamente.', 'error');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { api } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 interface Lead {
   id: string;
@@ -25,6 +26,7 @@ interface LeadDetailsModalProps {
 }
 
 export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadDetailsModalProps) {
+  const { showToast } = useToast();
   const [uploading, setUploading] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -44,7 +46,7 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
       }
       onLeadUpdated(); // recarrega a lista de leads
     } catch (err) {
-      alert('Erro ao enviar arquivo.');
+      showToast('Erro ao enviar arquivo.', 'error');
     } finally {
       setUploading(false);
     }

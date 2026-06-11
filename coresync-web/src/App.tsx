@@ -5,6 +5,7 @@ import { DashboardScreen } from './pages/DashboardScreen';
 import { PipelineScreen } from './pages/PipelineScreen';
 import { ProductsScreen } from './pages/ProductsScreen';
 import { SettingsScreen } from './pages/SettingsScreen';
+import { ToastProvider } from './contexts/ToastContext';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('@CoreSync:token');
@@ -28,17 +29,19 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<PublicRoute><LoginScreen /></PublicRoute>} />
-        <Route path="/dashboard" element={<PrivateRoute><DashboardScreen /></PrivateRoute>} />
-        <Route path="/pipeline" element={<PrivateRoute><PipelineScreen /></PrivateRoute>} />
-        <Route path="/products" element={<PrivateRoute><ProductsScreen /></PrivateRoute>} />
-        <Route path="/settings" element={<PrivateRoute><SettingsScreen /></PrivateRoute>} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<PublicRoute><LoginScreen /></PublicRoute>} />
+          <Route path="/dashboard" element={<PrivateRoute><DashboardScreen /></PrivateRoute>} />
+          <Route path="/pipeline" element={<PrivateRoute><PipelineScreen /></PrivateRoute>} />
+          <Route path="/products" element={<PrivateRoute><ProductsScreen /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute><SettingsScreen /></PrivateRoute>} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
   );
 }
 

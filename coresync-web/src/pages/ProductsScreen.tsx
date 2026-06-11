@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 interface Product {
   id: string;
@@ -14,6 +15,7 @@ export function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '', price: '' });
@@ -46,7 +48,7 @@ export function ProductsScreen() {
       setFormData({ name: '', description: '', price: '' });
       fetchProducts();
     } catch (err) {
-      alert('Erro ao salvar produto');
+      showToast('Erro ao salvar produto', 'error');
     }
   };
 
@@ -60,7 +62,7 @@ export function ProductsScreen() {
       });
       fetchProducts();
     } catch (err) {
-      alert('Erro ao alterar status do produto');
+      showToast('Erro ao alterar status do produto', 'error');
     }
   };
 
