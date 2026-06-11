@@ -22,9 +22,11 @@ interface KanbanCardProps {
   onAdvance: (leadId: string) => void;
   onDecline: (leadId: string) => void;
   isNextStatusAvailable: boolean;
+  isOverlay?: boolean;
+  swingRotate?: number;
 }
 
-export function KanbanCard({ lead, index, onView, onAdvance, onDecline, isNextStatusAvailable }: KanbanCardProps) {
+export function KanbanCard({ lead, index, onView, onAdvance, onDecline, isNextStatusAvailable, isOverlay = false, swingRotate = 0 }: KanbanCardProps) {
   const { t } = useTranslation();
   
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -41,6 +43,14 @@ export function KanbanCard({ lead, index, onView, onAdvance, onDecline, isNextSt
     }).format(value);
   };
 
+  let stateClasses = 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] cursor-grab hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]';
+
+  if (isOverlay) {
+    stateClasses = 'scale-105 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] cursor-grabbing z-50';
+  } else if (isDragging) {
+    stateClasses = 'opacity-30 grayscale border-dashed border-zinc-500 shadow-none cursor-grabbing';
+  }
+
   return (
     <div
       ref={setNodeRef}
@@ -49,13 +59,13 @@ export function KanbanCard({ lead, index, onView, onAdvance, onDecline, isNextSt
       className={`
         animate-brutal-pop flex flex-col gap-2 
         border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 p-4 
-        transition-all duration-200
-        ${isDragging 
-          ? 'scale-105 rotate-3 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] cursor-grabbing opacity-90 z-50' 
-          : 'shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] cursor-grab hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]'
-        }
+        transition-all duration-150 ease-out
+        ${stateClasses}
       `}
-      style={{ animationDelay: `${index * 80}ms` }}
+      style={{ 
+        animationDelay: `${index * 80}ms`,
+        transform: isOverlay && swingRotate ? `rotate(${swingRotate}deg)` : undefined
+      }}
     >
       <div className="flex justify-between items-start pointer-events-none">
         <div className="font-bold text-lime-600 dark:text-lime-400 uppercase">{lead.name}</div>

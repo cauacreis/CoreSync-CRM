@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
-import type { DragStartEvent, DragEndEvent } from '@dnd-kit/core';
+import type { DragStartEvent, DragEndEvent, DragMoveEvent } from '@dnd-kit/core';
 import { api } from '../services/api';
 import { NewLeadModal } from '../components/NewLeadModal';
 import { LeadDetailsModal } from '../components/LeadDetailsModal';
@@ -21,6 +21,9 @@ export function PipelineScreen() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [activeLead, setActiveLead] = useState<Lead | null>(null);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [swingRotate, setSwingRotate] = useState(0);
+  const lastDeltaX = useRef(0);
+  const swingTimeout = useRef<any>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -64,11 +67,35 @@ export function PipelineScreen() {
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     setActiveLead(active.data.current?.lead as Lead);
+    setSwingRotate(0);
+    lastDeltaX.current = 0;
+  };
+
+  const handleDragMove = (event: DragMoveEvent) => {
+    const currentDeltaX = event.delta.x;
+    const diff = currentDeltaX - lastDeltaX.current;
+    
+    // Calcula direção de arrasto e aplica a rotação brutalista
+    if (diff > 2) {
+      setSwingRotate(6); // Direita
+    } else if (diff < -2) {
+      setSwingRotate(-6); // Esquerda
+    }
+    
+    lastDeltaX.current = currentDeltaX;
+
+    // Reseta pro meio quando o mouse para
+    if (swingTimeout.current) clearTimeout(swingTimeout.current);
+    swingTimeout.current = setTimeout(() => {
+      setSwingRotate(0);
+    }, 100);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveLead(null);
+    setSwingRotate(0);
+    if (swingTimeout.current) clearTimeout(swingTimeout.current);
 
     if (!over) return;
 
@@ -163,7 +190,7 @@ export function PipelineScreen() {
         </button>
 
         {/* Scroll Container Ocultando a Barra de Rolagem Nativamente */}
-        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <DndContext sensors={sensors} onDragStart={handleDragStart} onDragMove={handleDragMove} onDragEnd={handleDragEnd}>
           <div 
             ref={scrollContainerRef}
             onWheel={handleWheel}
@@ -197,6 +224,8 @@ export function PipelineScreen() {
                 onAdvance={() => {}}
                 onDecline={() => {}}
                 isNextStatusAvailable={false}
+                isOverlay={true}
+                swingRotate={swingRotate}
               />
             ) : null}
           </DragOverlay>
