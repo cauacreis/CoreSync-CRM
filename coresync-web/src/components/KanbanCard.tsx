@@ -59,12 +59,12 @@ export function KanbanCard({ lead, index, onView, onAdvance, onDecline, isNextSt
       className={`
         animate-brutal-pop flex flex-col gap-2 
         border-4 border-zinc-950 dark:border-zinc-100 bg-zinc-100 dark:bg-zinc-950 p-4 
-        transition-all duration-150 ease-out
+        origin-top transition-transform duration-150 ease-out
         ${stateClasses}
       `}
       style={{ 
         animationDelay: `${index * 80}ms`,
-        transform: isOverlay && swingRotate ? `rotate(${swingRotate}deg)` : undefined
+        transform: isOverlay ? `rotate(${swingRotate}deg)` : undefined
       }}
     >
       <div className="flex justify-between items-start pointer-events-none">

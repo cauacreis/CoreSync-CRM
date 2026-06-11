@@ -75,12 +75,9 @@ export function PipelineScreen() {
     const currentDeltaX = event.delta.x;
     const diff = currentDeltaX - lastDeltaX.current;
     
-    // Calcula direção de arrasto e aplica a rotação brutalista
-    if (diff > 2) {
-      setSwingRotate(6); // Direita
-    } else if (diff < -2) {
-      setSwingRotate(-6); // Esquerda
-    }
+    // Calcula velocidade e aplica proporção de ângulo com cap de -15 a 15 graus
+    const angle = Math.min(Math.max(diff * 1.5, -15), 15);
+    setSwingRotate(angle);
     
     lastDeltaX.current = currentDeltaX;
 
