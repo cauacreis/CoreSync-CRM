@@ -21,7 +21,7 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="flex h-full w-full items-center justify-center p-4">
+    <div className="flex min-h-screen w-full items-center justify-center p-4">
       <div className="w-full max-w-md border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
         <h1 className="mb-6 text-4xl font-black uppercase tracking-tighter text-zinc-950 dark:text-zinc-100">
           CoreSync CRM
