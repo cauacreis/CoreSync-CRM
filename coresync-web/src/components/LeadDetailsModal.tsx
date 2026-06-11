@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { api } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
@@ -28,6 +28,41 @@ interface LeadDetailsModalProps {
 export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadDetailsModalProps) {
   const { showToast } = useToast();
   const [uploading, setUploading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    estimatedValue: 0,
+    description: '',
+    status: ''
+  });
+
+  useEffect(() => {
+    if (lead) {
+      setEditData({
+        name: lead.name || '',
+        email: lead.email || '',
+        phone: lead.phone || '',
+        estimatedValue: lead.estimatedValue || 0,
+        description: lead.description || '',
+        status: lead.status || ''
+      });
+      setIsEditing(false);
+    }
+  }, [lead]);
+
+  const handleSave = async () => {
+    if (!lead) return;
+    try {
+      await api.put(`/leads/${lead.id}`, editData);
+      showToast('Lead atualizado com sucesso!', 'success');
+      setIsEditing(false);
+      onLeadUpdated();
+    } catch (err) {
+      showToast('Erro ao atualizar lead.', 'error');
+    }
+  };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!lead || acceptedFiles.length === 0) return;
@@ -63,29 +98,84 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
         {/* Esquerda: Detalhes do Lead */}
         <div className="flex-1 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b-4 border-zinc-950 dark:border-zinc-800 pb-4">
-            <h2 className="text-3xl font-black uppercase text-lime-600 dark:text-lime-400">{lead.name}</h2>
-            <button
-              onClick={onClose}
-              className="md:hidden text-2xl font-bold text-zinc-600 dark:text-zinc-400 transition-colors hover:text-red-400"
-            >
-              X
-            </button>
+            {isEditing ? (
+              <input
+                type="text"
+                value={editData.name}
+                onChange={(e) => setEditData({...editData, name: e.target.value})}
+                className="text-2xl font-black uppercase text-lime-600 dark:text-lime-400 bg-transparent border-b-2 border-lime-400 outline-none w-3/4"
+              />
+            ) : (
+              <h2 className="text-3xl font-black uppercase text-lime-600 dark:text-lime-400">{lead.name}</h2>
+            )}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={isEditing ? handleSave : () => setIsEditing(true)}
+                className={`text-sm font-bold uppercase transition-colors px-3 py-1 border-2 border-black shadow-[2px_2px_0px_black] ${isEditing ? 'bg-lime-400 text-black hover:bg-lime-300' : 'bg-cyan-400 text-black hover:bg-cyan-300'}`}
+              >
+                {isEditing ? 'Salvar' : 'Editar'}
+              </button>
+              {isEditing && (
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="text-sm font-bold uppercase bg-red-400 text-black px-3 py-1 border-2 border-black shadow-[2px_2px_0px_black] hover:bg-red-300"
+                >
+                  Cancelar
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="md:hidden text-2xl font-bold text-zinc-600 dark:text-zinc-400 transition-colors hover:text-red-400 ml-2"
+              >
+                X
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
             <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Contato</p>
-            <p className="text-xl font-bold text-zinc-950 dark:text-white">{lead.email}</p>
-            <p className="text-lg text-zinc-300">{lead.phone || 'Sem telefone'}</p>
+            {isEditing ? (
+              <>
+                <input
+                  type="email"
+                  value={editData.email}
+                  onChange={(e) => setEditData({...editData, email: e.target.value})}
+                  className="text-lg font-bold text-zinc-950 dark:text-white bg-transparent border-b-2 border-zinc-500 outline-none w-full"
+                  placeholder="E-mail"
+                />
+                <input
+                  type="text"
+                  value={editData.phone}
+                  onChange={(e) => setEditData({...editData, phone: e.target.value})}
+                  className="text-lg text-zinc-300 bg-transparent border-b-2 border-zinc-500 outline-none w-full"
+                  placeholder="Telefone"
+                />
+              </>
+            ) : (
+              <>
+                <p className="text-xl font-bold text-zinc-950 dark:text-white">{lead.email}</p>
+                <p className="text-lg text-zinc-300">{lead.phone || 'Sem telefone'}</p>
+              </>
+            )}
           </div>
 
           <div className="flex flex-col gap-2 mt-2">
             <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Valor Estimado</p>
-            <p className="text-3xl font-black text-zinc-950 dark:text-white">
-              {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(lead.estimatedValue)}
-            </p>
+            {isEditing ? (
+              <input
+                type="number"
+                value={editData.estimatedValue}
+                onChange={(e) => setEditData({...editData, estimatedValue: parseFloat(e.target.value) || 0})}
+                className="text-3xl font-black text-zinc-950 dark:text-white bg-transparent border-b-2 border-zinc-500 outline-none w-full"
+              />
+            ) : (
+              <p className="text-3xl font-black text-zinc-950 dark:text-white">
+                {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(lead.estimatedValue)}
+              </p>
+            )}
           </div>
 
-          {lead.product && (
+          {lead.product && !isEditing && (
              <div className="flex flex-col gap-2 mt-2">
                <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Produto</p>
                <span className="bg-purple-500 text-sm text-zinc-950 dark:text-white font-bold px-2 py-1 uppercase tracking-tighter self-start border-2 border-zinc-950 dark:border-zinc-100">
@@ -94,14 +184,21 @@ export function LeadDetailsModal({ isOpen, onClose, lead, onLeadUpdated }: LeadD
              </div>
           )}
 
-          {lead.description && (
-             <div className="flex flex-col gap-2 mt-2">
-               <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Descrição / Notas</p>
-               <div className="text-md text-zinc-300 italic border-l-4 border-zinc-700 pl-4">
-                 {lead.description}
-               </div>
-             </div>
-          )}
+          <div className="flex flex-col gap-2 mt-2 flex-1">
+            <p className="font-bold text-zinc-600 dark:text-zinc-400 uppercase">Descrição / Notas</p>
+            {isEditing ? (
+              <textarea
+                value={editData.description}
+                onChange={(e) => setEditData({...editData, description: e.target.value})}
+                className="text-md text-zinc-300 bg-transparent border-2 border-zinc-700 p-2 outline-none w-full flex-1 resize-none min-h-[100px]"
+                placeholder="Detalhes..."
+              />
+            ) : lead.description ? (
+              <div className="text-md text-zinc-300 italic border-l-4 border-zinc-700 pl-4">
+                {lead.description}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         {/* Direita: Cofre de Arquivos */}

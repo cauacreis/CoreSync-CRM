@@ -26,9 +26,11 @@ public class TelegramSession {
     private UUID companyId;
     
     @Enumerated(EnumType.STRING)
-    private ChatState conversationState;
+    private ChatState conversationState = ChatState.IDLE;
     
     private UUID selectedLeadId;
+    
+    private UUID tempLeadId;
     
     private String pendingEmail;
 }

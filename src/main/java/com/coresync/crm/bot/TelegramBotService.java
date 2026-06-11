@@ -183,6 +183,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 case WAITING_LEAD_INDEX -> handleWaitingLeadIndex(session, text);
                 case WAITING_STATUS -> handleWaitingStatus(session, text);
                 case WAITING_LEAD_DATA -> handleWaitingLeadData(session, text);
+                case WAITING_EDIT_LEAD_DATA -> handleWaitingEditLeadData(session, text);
                 default -> sendMessage(chatId, "Estado de conversa não reconhecido.");
             }
 
@@ -503,6 +504,54 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sessionRepository.save(session);
     }
 
+    private void handleWaitingEditLeadData(TelegramSession session, String text) {
+        try {
+            if (text.equalsIgnoreCase("cancelar")) {
+                sendMessage(session.getChatId(), "Edição cancelada.");
+                session.setConversationState(ChatState.IDLE);
+                session.setTempLeadId(null);
+                sessionRepository.save(session);
+                return;
+            }
+
+            Lead lead = leadRepository.findByIdAndCompanyId(session.getTempLeadId(), session.getCompanyId()).orElse(null);
+            if (lead == null) {
+                sendMessage(session.getChatId(), "Erro: Lead não encontrado para edição.");
+                session.setConversationState(ChatState.IDLE);
+                session.setTempLeadId(null);
+                sessionRepository.save(session);
+                return;
+            }
+
+            sendMessage(session.getChatId(), "⏳ Compreendendo sua instrução com IA...");
+
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                String existingJson = mapper.writeValueAsString(lead);
+                
+                com.coresync.crm.dto.LeadRequest mergedRequest = groqClientService.mergeLeadData(existingJson, text);
+                
+                if (mergedRequest != null) {
+                    leadService.updateLead(lead.getId(), mergedRequest, lead.getProduct());
+                    sendMessage(session.getChatId(), "✅ *Lead " + lead.getName() + " atualizado com sucesso!*");
+                } else {
+                    sendMessage(session.getChatId(), "⚠️ Não foi possível processar as alterações. Tente ser mais claro na instrução.");
+                }
+            } catch (Exception e) {
+                log.error("Erro na edição IA", e);
+                sendMessage(session.getChatId(), "❌ Erro ao atualizar o lead.");
+            }
+
+            session.setConversationState(ChatState.IDLE);
+            session.setTempLeadId(null);
+            sessionRepository.save(session);
+
+        } catch (Exception e) {
+            log.error("Erro no processamento da edicao", e);
+            sendMessage(session.getChatId(), "Ocorreu um erro na edição.");
+        }
+    }
+
     private void handleWaitingLeadData(TelegramSession session, String text) {
         try {
             String[] parts = text.split(",");
@@ -687,6 +736,17 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 }
                 editMessageText(chatId, messageId, msg.toString());
                 answerCallbackQuery(callbackQuery.getId(), "Status atualizado!", false);
+
+            } else if (data.startsWith("CMD_EDIT_LEAD:")) {
+                String leadIdStr = data.split(":")[1];
+                UUID leadId = UUID.fromString(leadIdStr);
+                session.setConversationState(ChatState.WAITING_EDIT_LEAD_DATA);
+                session.setTempLeadId(leadId);
+                sessionRepository.save(session);
+                
+                sendMessage(chatId, "✏️ *Modo de Edição*\n\nDigite ou envie um áudio com o que deseja alterar. Exemplo:\n_\"Muda o valor pra R$ 10.000 e o telefone pra 11999999999\"_\n\nOu digite 'cancelar' para abortar.");
+                answerCallbackQuery(callbackQuery.getId(), "Pronto para edição!", false);
+
             } else if (data.equals("CMD_LIST_LEADS")) {
                 doListLeads(session);
                 answerCallbackQuery(callbackQuery.getId(), "Lista carregada!", false);
@@ -781,15 +841,25 @@ public class TelegramBotService extends TelegramLongPollingBot {
         InlineKeyboardButton reviewButton = new InlineKeyboardButton();
         reviewButton.setText("🔍 Analisar Desempenho");
         reviewButton.setCallbackData("REVIEW_LEAD:" + lead.getId());
-        rows.add(List.of(reviewButton));
+        if (!row1.isEmpty()) {
+            rows.add(row1);
+        }
         
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        InlineKeyboardButton editBtn = new InlineKeyboardButton();
+        editBtn.setText("✏️ Editar Lead");
+        editBtn.setCallbackData("CMD_EDIT_LEAD:" + lead.getId());
+        row2.add(editBtn);
+        row2.add(reviewButton);
+        rows.add(row2);
+
         markup.setKeyboard(rows);
         edit.setReplyMarkup(markup);
-
+        
         try {
             execute(edit);
-        } catch (TelegramApiException e) {
-            log.error("Erro ao editar mensagem com botões de status", e);
+        } catch (Exception e) {
+            log.error("Erro ao editar mensagem: ", e);
         }
     }
 

@@ -53,6 +53,19 @@ public class LeadController {
         return ResponseEntity.ok(leads);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Lead> updateLead(@PathVariable UUID id, @Valid @RequestBody LeadRequest request) {
+        com.coresync.crm.model.Product product = null;
+        if (request.getProductId() != null) {
+            UUID companyId = TenantContext.getTenantId();
+            if (companyId != null) {
+                product = productRepository.findByIdAndCompanyId(request.getProductId(), companyId).orElse(null);
+            }
+        }
+        Lead updatedLead = leadService.updateLead(id, request, product);
+        return ResponseEntity.ok(updatedLead);
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<Lead> updateLeadStatus(
             @PathVariable UUID id,

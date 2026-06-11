@@ -43,6 +43,37 @@ public class LeadService {
         return leadRepository.findAllByCompanyId(companyId);
     }
 
+    @com.coresync.crm.aop.Auditable(action = "LEAD_UPDATED")
+    public Lead updateLead(UUID leadId, com.coresync.crm.dto.LeadRequest request, com.coresync.crm.model.Product product) {
+        UUID companyId = TenantContext.getTenantId();
+        if (companyId == null) {
+            throw new IllegalStateException("Acesso negado: TenantContext não possui companyId");
+        }
+
+        Lead lead = leadRepository.findByIdAndCompanyId(leadId, companyId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead não encontrado ou não pertence a esta empresa"));
+
+        boolean descChanged = request.getDescription() != null && !request.getDescription().equals(lead.getDescription());
+
+        lead.setName(request.getName());
+        lead.setEmail(request.getEmail());
+        lead.setPhone(request.getPhone());
+        if (request.getStatus() != null) {
+            lead.setStatus(request.getStatus());
+        }
+        lead.setEstimatedValue(request.getEstimatedValue());
+        lead.setDescription(request.getDescription());
+        lead.setProduct(product);
+
+        Lead savedLead = leadRepository.save(lead);
+        
+        if (descChanged) {
+            smartTagWorker.processSmartTagsAsync(savedLead);
+        }
+        
+        return savedLead;
+    }
+
     @com.coresync.crm.aop.Auditable(action = "LEAD_STATUS_UPDATED")
     public Lead updateLeadStatus(UUID leadId, LeadStatus newStatus) {
         UUID companyId = TenantContext.getTenantId();

@@ -99,6 +99,41 @@ public class GroqClientService {
         return java.util.Collections.emptyList();
     }
 
+    public com.coresync.crm.dto.LeadRequest mergeLeadData(String existingJson, String userInput) {
+        String systemPrompt = "Você é um assistente de CRM. Receba o JSON atual do Lead e a instrução do usuário sobre o que editar. " +
+                "Gere um NOVO JSON completo do Lead com as alterações aplicadas. " +
+                "Mantenha os campos que não foram mencionados na instrução. " +
+                "O formato de saída DEVE ser estritamente um JSON com: name, email, phone, status, estimatedValue (número decimal), description. " +
+                "JSON Atual:\n" + existingJson;
+
+        GroqRequest request = new GroqRequest(
+                List.of(
+                        new Message("system", systemPrompt),
+                        new Message("user", userInput)
+                ),
+                this.model,
+                0.2,
+                Map.of("type", "json_object")
+        );
+
+        try {
+            GroqResponse response = webClient.post()
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(GroqResponse.class)
+                    .block();
+
+            if (response != null && response.choices() != null && !response.choices().isEmpty()) {
+                String jsonContent = response.choices().get(0).message().content();
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                return mapper.readValue(jsonContent, com.coresync.crm.dto.LeadRequest.class);
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao chamar Groq AI para mesclar dados: " + e.getMessage());
+        }
+        return null;
+    }
+
     public String transcribeAudio(byte[] audioBytes) {
         org.springframework.http.client.MultipartBodyBuilder builder = new org.springframework.http.client.MultipartBodyBuilder();
         builder.part("file", new org.springframework.core.io.ByteArrayResource(audioBytes) {

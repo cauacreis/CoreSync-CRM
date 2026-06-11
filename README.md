@@ -102,11 +102,11 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 - **CoreSync CRM** é uma plataforma B2B moderna, projetada com a estética **Neo-Brutalista** (alto contraste, bordas grossas e cores vibrantes) e empoderada por IA.
 
 ### 🔥 Features Principais
-- **Integração Bot do Telegram:** Cadastre, atualize e consulte seus leads conversando naturalmente.
+- 💬 **Integração Completa via Telegram Bot:** Crie leads, avance de status no funil, acompanhe métricas, aprove/desaprove produtos diretamente pelo Telegram, e agora **EDITE LEADS inteligentemente** enviando áudios ou textos descritivos!
 - **Voice-to-CRM via Whisper AI:** Mande um áudio no Telegram e a IA transcreve, interpreta e cadastra seu lead ou executa comandos com mágica NLP!
 - **AI Sales Coach (Groq/Llama 3):** Análises de vendas e dicas avançadas baseadas no histórico do lead.
 - **Dashboard Neo-Brutalist & Relatórios PDF:** Gráficos interativos (Recharts) e exportação de invoices com design afiado.
-- **Hub de Configurações Enterprise:** Um painel de *Settings* completo e responsivo, dividido em abas. Permite alterar o idioma da interface em tempo real (i18n), gerenciar regras do CRM (moeda, estágios de pipeline), verificar integrações e lidar com revogação de sessões. 
+- **Hub de Configurações Enterprise:** Um paniel de *Settings* completo e responsivo, dividido em abas. Permite alterar o idioma da interface em tempo real (i18n), gerenciar regras do CRM (moeda, estágios de pipeline), verificar integrações e lidar com revogação de sessões. 
 - **Catálogo de Produtos:** Vincule produtos reais a cada negociação com facilidade.
 - **Multi-Tenant Seguro:** Separação rígida de dados por empresa (`TenantContext`).
 
