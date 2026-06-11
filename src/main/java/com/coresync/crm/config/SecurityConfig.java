@@ -43,7 +43,13 @@ public class SecurityConfig {
                 .requestMatchers("/api/webhooks/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+            .headers(headers -> headers
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000))
+                .contentTypeOptions(contentTypeOptions -> {}) // Spring Security defaults to nosniff
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+            )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

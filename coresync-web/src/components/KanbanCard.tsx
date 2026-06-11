@@ -1,5 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
+import { memo } from 'react';
 
 export interface Lead {
   id: string;
@@ -26,7 +27,7 @@ interface KanbanCardProps {
   swingRotate?: number;
 }
 
-export function KanbanCard({ lead, index, onView, onAdvance, onDecline, isNextStatusAvailable, isOverlay = false, swingRotate = 0 }: KanbanCardProps) {
+export const KanbanCard = memo(({ lead, index, onView, onAdvance, onDecline, isNextStatusAvailable, isOverlay = false, swingRotate = 0 }: KanbanCardProps) => {
   const { t } = useTranslation();
   
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
@@ -112,4 +113,4 @@ export function KanbanCard({ lead, index, onView, onAdvance, onDecline, isNextSt
       </div>
     </div>
   );
-}
+});

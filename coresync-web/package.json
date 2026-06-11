@@ -27,7 +27,8 @@
     "react-input-mask": "^2.0.4",
     "react-router-dom": "^7.16.0",
     "recharts": "^3.8.1",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

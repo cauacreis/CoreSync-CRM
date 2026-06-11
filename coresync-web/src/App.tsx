@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginScreen } from './pages/LoginScreen';
-import { DashboardScreen } from './pages/DashboardScreen';
-import { PipelineScreen } from './pages/PipelineScreen';
-import { ProductsScreen } from './pages/ProductsScreen';
-import { SettingsScreen } from './pages/SettingsScreen';
 import { ToastProvider } from './contexts/ToastContext';
+import { useGlobalButtonSounds } from './hooks/useAppSounds';
+
+const DashboardScreen = React.lazy(() => import('./pages/DashboardScreen').then(module => ({ default: module.DashboardScreen })));
+const PipelineScreen = React.lazy(() => import('./pages/PipelineScreen').then(module => ({ default: module.PipelineScreen })));
+const ProductsScreen = React.lazy(() => import('./pages/ProductsScreen').then(module => ({ default: module.ProductsScreen })));
+const SettingsScreen = React.lazy(() => import('./pages/SettingsScreen').then(module => ({ default: module.SettingsScreen })));
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('@CoreSync:token');
@@ -18,6 +20,8 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  useGlobalButtonSounds();
+
   useEffect(() => {
     // Theme Manager
     const theme = localStorage.getItem('@CoreSync:theme') || 'dark'; // default dark for existing users
@@ -31,15 +35,17 @@ function App() {
   return (
     <ToastProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<PublicRoute><LoginScreen /></PublicRoute>} />
-          <Route path="/dashboard" element={<PrivateRoute><DashboardScreen /></PrivateRoute>} />
-          <Route path="/pipeline" element={<PrivateRoute><PipelineScreen /></PrivateRoute>} />
-          <Route path="/products" element={<PrivateRoute><ProductsScreen /></PrivateRoute>} />
-          <Route path="/settings" element={<PrivateRoute><SettingsScreen /></PrivateRoute>} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+        <Suspense fallback={<div className="h-screen w-screen bg-zinc-950 flex items-center justify-center text-lime-400 font-black text-2xl uppercase">Carregando Módulo...</div>}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/login" element={<PublicRoute><LoginScreen /></PublicRoute>} />
+            <Route path="/dashboard" element={<PrivateRoute><DashboardScreen /></PrivateRoute>} />
+            <Route path="/pipeline" element={<PrivateRoute><PipelineScreen /></PrivateRoute>} />
+            <Route path="/products" element={<PrivateRoute><ProductsScreen /></PrivateRoute>} />
+            <Route path="/settings" element={<PrivateRoute><SettingsScreen /></PrivateRoute>} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
     </ToastProvider>
   );

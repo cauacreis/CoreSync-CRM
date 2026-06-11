@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import { useAppSounds } from '../hooks/useAppSounds';
 
 type ToastType = 'success' | 'error' | 'warning';
 
@@ -17,16 +18,23 @@ const ToastContext = createContext<ToastContextData>({} as ToastContextData);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const { playSuccess, playError } = useAppSounds();
 
   const showToast = useCallback((message: string, type: ToastType = 'success') => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
 
+    if (type === 'success') {
+      playSuccess();
+    } else {
+      playError();
+    }
+
     // Remove the toast after 3 seconds
     setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      setToasts((prev) => prev.filter((t) => t.id !== id));
     }, 3000);
-  }, []);
+  }, [playSuccess, playError]);
 
   return (
     <ToastContext.Provider value={{ showToast }}>

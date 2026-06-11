@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +22,7 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
+    @CacheEvict(value = "products", allEntries = true)
     public ResponseEntity<Product> createProduct(@Valid @RequestBody ProductRequest request) {
         Product product = Product.builder()
                 .name(request.getName())
@@ -33,12 +36,14 @@ public class ProductController {
     }
 
     @GetMapping
+    @Cacheable("products")
     public ResponseEntity<List<Product>> getProducts() {
         List<Product> products = productService.getProducts();
         return ResponseEntity.ok(products);
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = "products", allEntries = true)
     public ResponseEntity<Product> updateProduct(
             @PathVariable UUID id,
             @Valid @RequestBody ProductRequest request) {
@@ -55,6 +60,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "products", allEntries = true)
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
