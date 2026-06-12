@@ -51,17 +51,18 @@ export function SettingsScreen() {
   };
 
   const handleSave = () => {
-    const currentTheme = localStorage.getItem('@CoreSync:theme');
     localStorage.setItem('@CoreSync:theme', draftTheme);
     localStorage.setItem('@CoreSync:notifications', String(draftNotifications));
     localStorage.setItem('@CoreSync:sound', String(draftSound));
     i18n.changeLanguage(draftLanguage);
     
-    if (currentTheme !== draftTheme) {
-      window.location.reload();
+    if (draftTheme === 'dark' || (draftTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
     } else {
-      showToast('Preferências salvas com sucesso!', 'success');
+      document.documentElement.classList.remove('dark');
     }
+    
+    showToast('Preferências salvas com sucesso!', 'success');
   };
 
   return (

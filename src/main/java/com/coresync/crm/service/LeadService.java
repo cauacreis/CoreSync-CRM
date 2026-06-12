@@ -21,6 +21,7 @@ public class LeadService {
     private final LeadSmartTagWorker smartTagWorker;
 
     @com.coresync.crm.aop.Auditable(action = "LEAD_CREATED")
+    @org.springframework.cache.annotation.CacheEvict(value = "dashboard", allEntries = true)
     public Lead createLead(Lead lead) {
         UUID companyId = TenantContext.getTenantId();
         if (companyId == null) {
@@ -34,16 +35,25 @@ public class LeadService {
         return savedLead;
     }
 
-    public List<Lead> getLeads() {
+    public org.springframework.data.domain.Page<Lead> getLeads(org.springframework.data.domain.Pageable pageable) {
         UUID companyId = TenantContext.getTenantId();
         if (companyId == null) {
             throw new IllegalStateException("Acesso negado: TenantContext não possui companyId");
         }
         
-        return leadRepository.findAllByCompanyId(companyId);
+        return leadRepository.findAllByCompanyId(companyId, pageable);
+    }
+
+    public java.util.Optional<Lead> getLeadById(UUID id) {
+        UUID companyId = TenantContext.getTenantId();
+        if (companyId == null) {
+            throw new IllegalStateException("Acesso negado: TenantContext não possui companyId");
+        }
+        return leadRepository.findByIdAndCompanyId(id, companyId);
     }
 
     @com.coresync.crm.aop.Auditable(action = "LEAD_UPDATED")
+    @org.springframework.cache.annotation.CacheEvict(value = "dashboard", allEntries = true)
     public Lead updateLead(UUID leadId, com.coresync.crm.dto.LeadRequest request, com.coresync.crm.model.Product product) {
         UUID companyId = TenantContext.getTenantId();
         if (companyId == null) {

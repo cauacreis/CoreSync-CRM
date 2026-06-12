@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @Repository
 public interface LeadRepository extends JpaRepository<Lead, UUID> {
+    org.springframework.data.domain.Page<Lead> findAllByCompanyId(UUID companyId, org.springframework.data.domain.Pageable pageable);
     List<Lead> findAllByCompanyId(UUID companyId);
     Optional<Lead> findByIdAndCompanyId(UUID id, UUID companyId);
 }

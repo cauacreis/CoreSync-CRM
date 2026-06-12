@@ -41,6 +41,7 @@ C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\repo
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\repository\UserRepository.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\security\JwtAuthenticationFilter.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\security\JwtService.java
+C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\security\RateLimitFilter.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\security\TenantContext.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\service\DashboardService.java
 C:\Users\Cauã Felype\Documents\CoreSync CRM\src\main\java\com\coresync\crm\service\LeadService.java

@@ -48,8 +48,8 @@ public class LeadController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Lead>> getLeads() {
-        List<Lead> leads = leadService.getLeads();
+    public ResponseEntity<org.springframework.data.domain.Page<Lead>> getLeads(org.springframework.data.domain.Pageable pageable) {
+        org.springframework.data.domain.Page<Lead> leads = leadService.getLeads(pageable);
         return ResponseEntity.ok(leads);
     }
 
@@ -90,10 +90,7 @@ public class LeadController {
     public ResponseEntity<?> reviewLeadConversation(
             @PathVariable UUID id) {
 
-        Lead lead = leadService.getLeads().stream()
-                .filter(l -> l.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        Lead lead = leadService.getLeadById(id).orElse(null);
 
         if (lead == null) {
             return ResponseEntity.notFound().build();

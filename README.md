@@ -5,13 +5,15 @@ Bem-vindo ao **CoreSync CRM**, uma plataforma SaaS Multi-Tenant corporativa (B2B
 ## 🚀 Arquitetura e Escopo
 Este projeto baseia-se em uma arquitetura **Multi-Tenant**, onde todos os dados de usuários e operações de negócio pertencem a uma entidade corporativa (`Company`). Esta abordagem garante um alto nível de isolamento lógico de dados para aplicações SaaS B2B.
 
-A stack tecnológica inicial compreende:
-- **Java 21**
-- **Spring Boot 3.x**
-- **Spring Security** (Baseado em tokens Stateless / JWT para a evolução REST)
-- **Spring Data JPA**
-- **Banco de Dados**: H2 (In Memory) para testes rápidos e desenvolvimento.
-- **Lombok** e **JJWT** para redução de boilerplate e gestão de tokens.
+### Tech Stack
+- **Frontend:** React, TypeScript, Tailwind CSS (Neo-Brutalism + Dark Mode), Vite.
+- **Backend:** Java 21, Spring Boot 3.2.
+- **Banco de Dados:** PostgreSQL (Supabase Ready) c/ Spring Data JPA.
+- **Inteligência Artificial:** Groq Cloud (Llama 3) via API Direta & Whisper AI (Transcrição).
+- **Integração:** Telegram Bots API (`telegrambots-spring-boot-starter`).
+- **Segurança:** Rate Limiting Global por IP (Bucket4j) e JWT Tokens na Web.
+- **Performance:** Cache (Spring Cacheable) e Paginação (`Pageable`).
+- **Relatórios:** iText 7 para PDF Generation.
 
 ## 🏢 Entidades Core
 - **Company**: Representa o inquilino (tenant) com `id` (UUID), `name`, e `cnpj`.

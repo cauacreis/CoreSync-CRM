@@ -29,6 +29,14 @@ export function PipelineScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredLeads = leads.filter(lead => 
+    lead.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (lead.email && lead.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (lead.smartTags && lead.smartTags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+  );
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -43,8 +51,9 @@ export function PipelineScreen() {
 
   const fetchLeads = async () => {
     try {
-      const response = await api.get('/leads');
-      setLeads(response.data);
+      const response = await api.get('/leads?size=100'); // Pegando até 100 leads na página inicial
+      const data = response.data.content ? response.data.content : response.data;
+      setLeads(data);
     } catch (err) {
       localStorage.removeItem('@CoreSync:token');
       navigate('/login');
@@ -141,7 +150,16 @@ export function PipelineScreen() {
 
       {/* Header */}
       <div className="mb-8 flex items-center justify-between shrink-0 flex-wrap gap-4">
-        <h1 className="text-5xl font-black uppercase tracking-tighter text-zinc-950 dark:text-zinc-100">{t('pipeline.title')}</h1>
+        <div className="flex items-center gap-4 flex-wrap">
+          <h1 className="text-5xl font-black uppercase tracking-tighter text-zinc-950 dark:text-zinc-100">{t('pipeline.title')}</h1>
+          <input
+            type="text"
+            placeholder="Buscar leads..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border-4 border-zinc-950 dark:border-zinc-100 bg-white dark:bg-zinc-900 px-4 py-2 font-bold text-zinc-950 dark:text-zinc-100 focus:outline-none focus:border-lime-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+          />
+        </div>
         <div className="flex gap-4 flex-wrap">
           <button
             onClick={() => setIsNewLeadModalOpen(true)}
@@ -197,7 +215,7 @@ export function PipelineScreen() {
           >
             {STATUSES.map((status, index) => (
               <KanbanColumn key={status} status={status} index={index}>
-                {leads
+                {filteredLeads
                   .filter((lead) => lead.status === status)
                   .map((lead, leadIndex) => (
                     <KanbanCard

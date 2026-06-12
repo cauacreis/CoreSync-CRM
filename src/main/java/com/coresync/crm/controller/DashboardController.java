@@ -27,9 +27,10 @@ public class DashboardController {
     private final AuditLogRepository auditLogRepository;
 
     @GetMapping
+    @org.springframework.cache.annotation.Cacheable("dashboard")
     public ResponseEntity<DashboardMetricsResponse> getMetrics() {
-        DashboardMetricsResponse metrics = dashboardService.getMetrics();
-        return ResponseEntity.ok(metrics);
+        DashboardMetricsResponse response = dashboardService.getMetrics();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/export")
