@@ -54,7 +54,7 @@ public class Lead {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "lead_smart_tags", joinColumns = @JoinColumn(name = "lead_id"))
-    @Column(name = "tag", columnDefinition = "TEXT")
+    @Column(name = "tag")
     @Builder.Default
     private java.util.List<String> smartTags = new java.util.ArrayList<>();
 }
