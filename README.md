@@ -105,7 +105,8 @@ A Portaria será aberta na porta **5173**. Ao logar, a tela executiva exibirá a
 
 ### 🔥 Features Principais
 - 💬 **Integração Completa via Telegram Bot:** Crie leads, avance de status no funil, acompanhe métricas, aprove/desaprove produtos diretamente pelo Telegram, e agora **EDITE LEADS inteligentemente** enviando áudios ou textos descritivos!
-- **Voice-to-CRM via Whisper AI:** Mande um áudio no Telegram e a IA transcreve, interpreta e cadastra seu lead ou executa comandos com mágica NLP!
+- **Busca de Leads com Easter Egg**: Filtre leads dinamicamente e as colunas vazias desaparecem. Caso nenhum lead seja encontrado, divirta-se com o easter egg Neo-Brutalista.
+- **Transcritor de Áudio (Groq Whisper)**: Envie áudios para o Bot (ex: "Acabei de ligar pro Carlos...") e a IA vai transcrever, identificar as tags e salvar as atualizações no banco.
 - **AI Sales Coach (Groq/Llama 3):** Análises de vendas e dicas avançadas baseadas no histórico do lead.
 - **Dashboard Neo-Brutalist & Relatórios PDF:** Gráficos interativos (Recharts) e exportação de invoices com design afiado.
 - **Hub de Configurações Enterprise:** Um paniel de *Settings* completo e responsivo, dividido em abas. Permite alterar o idioma da interface em tempo real (i18n), gerenciar regras do CRM (moeda, estágios de pipeline), verificar integrações e lidar com revogação de sessões. 

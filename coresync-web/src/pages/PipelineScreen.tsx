@@ -213,23 +213,40 @@ export function PipelineScreen() {
             onWheel={handleWheel}
             className="flex h-full gap-6 overflow-x-auto scrollbar-hide pb-4 px-2 pt-4"
           >
-            {STATUSES.map((status, index) => (
-              <KanbanColumn key={status} status={status} index={index}>
-                {filteredLeads
-                  .filter((lead) => lead.status === status)
-                  .map((lead, leadIndex) => (
-                    <KanbanCard
-                      key={lead.id}
-                      lead={lead}
-                      index={leadIndex}
-                      onView={setSelectedLead}
-                      onAdvance={(id) => handleUpdateStatus(id, STATUSES[STATUSES.indexOf(status) + 1])}
-                      onDecline={(id) => handleUpdateStatus(id, 'LOST')}
-                      isNextStatusAvailable={status !== 'LOST' && STATUSES.indexOf(status) < STATUSES.length - 1}
-                    />
-                  ))}
-              </KanbanColumn>
-            ))}
+            {searchQuery && filteredLeads.length === 0 ? (
+              <div className="flex h-full w-full items-center justify-center p-8">
+                <div className="border-8 border-zinc-950 dark:border-zinc-100 bg-lime-400 p-12 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] dark:shadow-[16px_16px_0px_0px_rgba(255,255,255,1)] transform rotate-2">
+                  <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-zinc-950 text-center">
+                    Ops, parece que não existe esse lead! 🕵️‍♂️
+                  </h2>
+                </div>
+              </div>
+            ) : (
+              STATUSES.map((status, index) => {
+                const columnLeads = filteredLeads.filter((lead) => lead.status === status);
+                
+                // Se estiver buscando e a coluna não tiver leads, esconde a coluna
+                if (searchQuery && columnLeads.length === 0) {
+                  return null;
+                }
+
+                return (
+                  <KanbanColumn key={status} status={status} index={index}>
+                    {columnLeads.map((lead, leadIndex) => (
+                      <KanbanCard
+                        key={lead.id}
+                        lead={lead}
+                        index={leadIndex}
+                        onView={setSelectedLead}
+                        onAdvance={(id) => handleUpdateStatus(id, STATUSES[STATUSES.indexOf(status) + 1])}
+                        onDecline={(id) => handleUpdateStatus(id, 'LOST')}
+                        isNextStatusAvailable={status !== 'LOST' && STATUSES.indexOf(status) < STATUSES.length - 1}
+                      />
+                    ))}
+                  </KanbanColumn>
+                );
+              })
+            )}
           </div>
 
           <DragOverlay>
