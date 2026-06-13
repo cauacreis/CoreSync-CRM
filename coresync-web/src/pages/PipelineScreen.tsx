@@ -214,8 +214,8 @@ export function PipelineScreen() {
             className="flex h-full gap-6 overflow-x-auto scrollbar-hide pb-4 px-2 pt-4"
           >
             {searchQuery && filteredLeads.length === 0 ? (
-              <div className="absolute inset-0 z-50 flex items-center justify-center p-8 pointer-events-none">
-                <div className="border-8 border-zinc-950 dark:border-zinc-100 bg-lime-400 p-12 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] dark:shadow-[16px_16px_0px_0px_rgba(255,255,255,1)] transform rotate-2 pointer-events-auto">
+              <div className="flex-1 min-w-full h-full flex items-center justify-center p-8 pb-16">
+                <div className="border-8 border-zinc-950 dark:border-zinc-100 bg-lime-400 p-12 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] dark:shadow-[16px_16px_0px_0px_rgba(255,255,255,1)] transform rotate-2">
                   <h2 className="text-4xl md:text-6xl font-black uppercase tracking-tighter text-zinc-950 text-center">
                     Ops, parece que não existe esse lead! 🕵️‍♂️
                   </h2>
